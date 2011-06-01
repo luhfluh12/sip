@@ -1,2 +1,4 @@
 sipcore/config/
 .nbproject
+sipcore/runtime
+www/assets
