@@ -319,7 +319,7 @@ class Sms extends CActiveRecord
             
             //sending
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://api.clickatell.com/http/sendmsg");
+            curl_setopt($ch, CURLOPT_URL, "http://api.clickatell.com/http/sendmsg");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
