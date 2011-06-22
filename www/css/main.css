@@ -21,14 +21,22 @@ body
 }
 #logo {
     float:left;
-    width:260px;
+    width:180px;
     font-size:32px;
     padding:10px;
 }
 
+#l_description {
+	float:left;
+	width:250px;
+	font-size:14px;
+	padding:20px 5px;
+	text-align: left;
+}
+
 #mainmenu {
     float:right;
-    width:659px;
+    width:459px;
     text-align:right;
 }
 

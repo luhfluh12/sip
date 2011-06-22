@@ -101,6 +101,10 @@ class SiteController extends Controller
 		$this->render('contact',array('model'=>$model));
 	}
 
+	public function actionDev () {
+		$this->render('dev');
+	}
+
 	/**
 	 * Displays the login page
 	 */

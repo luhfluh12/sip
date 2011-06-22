@@ -22,27 +22,31 @@
 <div id="page">
 
 	<div id="header">
-		<div id="logo"><img src="images/web.gif" alt="siponline" /></div>
-        	<div id="mainmenu">
-                 <?php 
-                 $this->widget('zii.widgets.CMenu',array(
-                'items'=>array(
-                        array('label'=>'Home', 'url'=>array('/site/index'),
-                            'visible'=>Yii::app()->user->isGuest),
-                        array('label'=>'Home', 'url'=>isset(Yii::app()->user->homepage) ? Yii::app()->user->homepage : array('account/index'),
-                            'visible'=>!Yii::app()->user->isGuest),
-                        array('label'=>'Scoli', 'url'=>array('/school/index'),
-                            'visible'=>Yii::app()->user->isGuest),
-                        array('label'=>'Contul meu',
-                            'url'=>array('/account/update','id'=>Yii::app()->user->id),
-                            'visible'=>!Yii::app()->user->isGuest),
-                        array('label'=>'Logout ('.Yii::app()->user->name.')',
-                            'url'=>array('/site/logout'),
-                            'visible'=>!Yii::app()->user->isGuest),
-                ),
-                ));
-                ?>
-                </div><!-- mainmenu -->
+		<div id="logo">
+			<img src="images/web.gif" alt="siponline" />
+		</div>
+		<div id='l_description'>
+			Site-ul de dezvoltare a proiectului SIP. <?php echo CHtml::link('Află mai multe &rsaquo;&rsaquo;', array('site/dev')); ?>
+		</div>
+    	<div id="mainmenu">
+             <?php $this->widget('zii.widgets.CMenu',array(
+            	'items'=>array(
+                    array('label'=>'Home', 'url'=>array('/site/index'),
+                        'visible'=>Yii::app()->user->isGuest),
+                    array('label'=>'Home', 'url'=>isset(Yii::app()->user->homepage) ? Yii::app()->user->homepage : array('account/index'),
+                        'visible'=>!Yii::app()->user->isGuest),
+                    array('label'=>'Scoli', 'url'=>array('/school/index'),
+                        'visible'=>Yii::app()->user->isGuest),
+                    array('label'=>'Contul meu',
+                        'url'=>array('/account/update','id'=>Yii::app()->user->id),
+                        'visible'=>!Yii::app()->user->isGuest),
+                    array('label'=>'Logout ('.Yii::app()->user->name.')',
+                        'url'=>array('/site/logout'),
+                        'visible'=>!Yii::app()->user->isGuest),
+            		),
+            	));
+            ?>
+        </div><!-- mainmenu -->
 	</div><!-- header -->
         <div id="page_title">
             <div id="page_title_content" class="clearfix">
@@ -61,7 +65,7 @@
                 <?php echo CHtml::link('Ce spun diriginții?',array('site/page','view'=>'reviews')); ?> -
                 <?php echo CHtml::link('Contact',array('site/contact')); ?>
             </div>
-		Copyright &copy; <?php echo date('Y'); ?> by Vlad Velici.<br/>
+		Copyright &copy; 2011 by Vlad Velici.<br/>
 		All Rights Reserved.
 	</div><!-- footer -->
 
