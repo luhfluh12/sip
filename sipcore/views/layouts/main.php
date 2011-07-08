@@ -51,7 +51,7 @@
         <div id="page_title">
             <div id="page_title_content" class="clearfix">
                 <?php 
-                    $this->renderPartial('/layouts/header');
+                    $this->renderPartial('//layouts/header');
                 ?>
             </div>
         </div>

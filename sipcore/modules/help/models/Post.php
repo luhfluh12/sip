@@ -1,18 +1,24 @@
 <?php
 
 /**
- * This is the model class for table "schools".
+ * This is the model class for table "hposts".
  *
- * The followings are the available columns in table 'schools':
+ * The followings are the available columns in table 'hposts':
  * @property integer $id
- * @property string $name
- * @property string $city
+ * @property integer $category
+ * @property string $title
+ * @property string $body
+ * @property string $date
+ * @property string $update
+ *
+ * The followings are the available model relations:
+ * @property Hcategories $category0
  */
-class School extends CActiveRecord
+class Post extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return School the static model class
+	 * @return Post the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -24,7 +30,7 @@ class School extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'schools';
+		return 'hposts';
 	}
 
 	/**
@@ -35,12 +41,13 @@ class School extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, city', 'required'),
-			array('name', 'length', 'max'=>100),
-			array('city', 'length', 'max'=>50),
+			array('category, title, body, date', 'required'),
+			array('category', 'numerical', 'integerOnly'=>true),
+			array('title', 'length', 'max'=>50),
+			array('date, update', 'length', 'max'=>10),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('name, city', 'safe', 'on'=>'search'),
+			array('id, category, title, body, date, update', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -52,10 +59,8 @@ class School extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-                    'rClasses'=>array(self::HAS_MANY,'Classes','school','order'=>'grade ASC, name ASC'),
-                    'rStudent'=>array(self::HAS_MANY,'Students','school'),
-                    'rTeacher'=>array(self::HAS_MANY,'Teacher','school'),
-                );
+			'rCategory' => array(self::BELONGS_TO, 'Category', 'category'),
+		);
 	}
 
 	/**
@@ -65,8 +70,11 @@ class School extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Denumire școală',
-			'city' => 'Oraș',
+			'category' => 'Categorie',
+			'title' => 'Titlu',
+			'body' => 'Conținut',
+			'date' => 'Postat la',
+			'update' => 'Ultima schimbare',
 		);
 	}
 
@@ -81,22 +89,15 @@ class School extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('city',$this->city,true);
+		$criteria->compare('id',$this->id);
+		$criteria->compare('category',$this->category);
+		$criteria->compare('title',$this->title,true);
+		$criteria->compare('body',$this->body,true);
+		$criteria->compare('date',$this->date,true);
+		$criteria->compare('update',$this->update,true);
 
-		return new CActiveDataProvider(get_class($this), array(
+		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
-        
-        public function getList() {
-            $criteria=new CDbCriteria;
-            $criteria->select="id, name, city";
-            $r = self::model()->findAll($criteria);
-            $result = array();
-            foreach ($r as $obj) {
-                $result[$obj->id] = $obj->name.' '.$obj->city;
-            }
-            return $result;
-        }
 }
