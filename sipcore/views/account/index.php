@@ -15,6 +15,13 @@ $this->pageTitle = 'Contul meu';
 
 ?>
 
-<div><strong>E-mail</strong> : <?php echo $model->email; ?></div>
-<div><strong>Tip cont</strong> : <?php echo Account::getAccountTypes($model->type); ?></div>
-<?php echo CHtml::link('Schimbă e-mail sau parolă',array('account/update','id'=>$model->id)); ?>
+<?php $this->widget('zii.widgets.CDetailView', array(
+	'data'=>$model,
+	'attributes'=>array(
+                'name',
+		'email',
+                'phone',
+                'registered:Date',
+
+	),
+)); ?>

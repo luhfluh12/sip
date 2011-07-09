@@ -6,7 +6,7 @@ class AccountController extends Controller {
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
      * using two-column layout. See 'protected/views/layouts/column2.php'.
      */
-    public $layout = '//layouts/column2';
+    public $layout = '//layouts/column1';
     private $_model = null;
 
     /**
@@ -45,14 +45,11 @@ class AccountController extends Controller {
     }
 
     public function actionIndex() {
+
         $model = $this->loadModel(Yii::app()->user->id);
-        if (isset(Yii::app()->user->homepage) && Yii::app()->user->homepage[0] !== 'account/index') {
-            $this->redirect(Yii::app()->user->homepage);
-        } else {
-            $this->render('index', array(
-                'model' => $model,
-            ));
-        }
+        $this->render('index', array(
+            'model' => $model,
+        ));
     }
 
     /**
@@ -148,13 +145,13 @@ class AccountController extends Controller {
                 if (isset($_POST['Account'])) {
                     $model->setScenario('setupPassword');
                     $model->attributes = $_POST['Account'];
-                    $model->activation='';
+                    $model->activation = '';
                     if ($model->save()) {
-                        Yii::app()->user->setFlash('activate',1);
+                        Yii::app()->user->setFlash('activate', 1);
                         $this->redirect(array('site/index'));
                     }
-                } 
-                $this->render('activation/page', array('step' => 2, 'model' => $model, 'code'=>$code));
+                }
+                $this->render('activation/page', array('step' => 2, 'model' => $model, 'code' => $code));
             } else {
                 $this->render('activation/page', array('step' => 1, 'error' => 'Codul de activare este incorect. Încercați din nou.'));
             }
@@ -162,7 +159,6 @@ class AccountController extends Controller {
             $this->render('activation/page', array('step' => 1));
         }
     }
-
 
     /**
      * Returns the data model based on the primary key given in the GET variable.
