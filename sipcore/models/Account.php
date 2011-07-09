@@ -21,8 +21,6 @@ class Account extends CActiveRecord {
     const TYPE_PARENT=4;
     const TYPE_ADMIN=5;
     const TYPE_WORKER=6;
-    const ACTIVATION_SESSION_ID = 'sip_activation_account';
-    const ACTIVATION_SESSION_CODE = 'sip_activation_code';
     private $_activation = null;
     public $old_password;
     public $new_password;

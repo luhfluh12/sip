@@ -1,21 +1,11 @@
 <?php
-$this->breadcrumbs=array(
-	'Contul meu'=>array('index'),
-	'',
-);
-
-/*$this->menu=array(
-	array('label'=>'List Account', 'url'=>array('index')),
-	array('label'=>'Create Account', 'url'=>array('create')),
-	array('label'=>'View Account', 'url'=>array('view', 'id'=>$model->id)),
-	array('label'=>'Manage Account', 'url'=>array('admin')),
-);*/
+$this->breadcrumbs=array('Contul meu'=>array('account/index'));
 
 $this->pageTitle='Actualizare cont';
 ?>
 
-<?php if ($msg = Yii::app()->user->getFlash('account_updated')): ?>
-    <div class="flash-success"><?php echo $msg; ?></div>
+<?php if (Yii::app()->user->hasFlash('account_updated')): ?>
+    <div class="flash-success"><?php Yii::app()->user->getFlash('account_updated'); ?></div>
 <?php endif; ?>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $this->renderPartial('forms/_'.$p, array('model'=>$model)); ?>
