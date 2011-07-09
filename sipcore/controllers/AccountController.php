@@ -68,8 +68,12 @@ class AccountController extends Controller {
      * @param integer $id the ID of the model to be updated
      */
     public function actionUpdate($p='general') {
+        $this->layout='//layouts/column2';
+        if (in_array($p,array('general','password','phone','email','question'))===false)
+                $p='general';
+        
         $model = $this->loadModel(Yii::app()->user->id);
-
+        
         if (isset($_POST['Account'])) {
             $model->attributes = $_POST['Account'];
             if ($model->save())
@@ -78,6 +82,7 @@ class AccountController extends Controller {
 
         $this->render('update', array(
             'model' => $model,
+            'p' => $p,
         ));
     }
 

@@ -15,6 +15,9 @@
  * @property integer $last_login
  * @property string $last_ip
  * @property integer $registered
+ * 
+ * The followings are the available model relations:
+ * @property array $rAccountRevisions
  */
 class Account extends CActiveRecord {
     const TYPE_TEACHER=2;
@@ -92,6 +95,7 @@ class Account extends CActiveRecord {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
+            'rAccountRevisions' => array(self::HAS_MANY, 'AccountRevision', 'account'),
             'rStudent' => array(self::HAS_MANY, 'Students', 'parent'),
             'rStudentCount' => array(self::STAT, 'Students', 'parent'),
             'rClass' => array(self::HAS_ONE, 'Classes', 'teacher'),
@@ -203,6 +207,20 @@ class Account extends CActiveRecord {
         }
     }
 
+    /**
+     * Stores a new AccountRevision, using the Account's scenario
+     * and the given old value
+     * @param string $oldvalue The value that was changed
+     * @return boolean Whether the revision was saved 
+     */
+    public function storeOldValue($oldvalue) {
+        $revision = new AccountRevision;
+        $revision->oldvalue = $oldvalue;
+        $revision->action = $this->getScenario();
+        $revision->account = $this->id;
+        return $revision->save();
+    }
+    
     protected function beforeSave() {
         if (parent::beforeSave()) {
             if ($this->isNewRecord) {
@@ -210,6 +228,10 @@ class Account extends CActiveRecord {
             } else {
                 if (!empty($this->new_password)) {
                     $this->password = $this->hashPassword($this->new_password);
+                    if ($this->storeOldValue('')===false) {
+                        $this->addError('new_password', 'A apărut o eroare. Vă rugăm încercați din nou.');
+                        return false;
+                    }
                 }
             }
             return true;

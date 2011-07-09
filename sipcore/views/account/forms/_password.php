@@ -1,3 +1,4 @@
+<h1>Schimbă parola</h1>
 <div class="form">
     <?php
     $form = $this->beginWidget('CActiveForm', array(
