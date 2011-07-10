@@ -10,11 +10,6 @@
     <?php echo $form->errorSummary($model); ?>
 
     <div class="row">
-        <?php echo $form->labelEx($model, 'old_password'); ?>
-        <?php echo $form->passwordField($model, 'old_password', array('size' => 60)); ?>
-        <?php echo $form->error($model, 'old_password'); ?>
-    </div>
-    <div class="row">
         <?php echo $form->labelEx($model, 'phone'); ?>
         <?php echo $form->textField($model, 'phone', array('size' => 60, 'maxlength'=>12)); ?>
         <?php echo $form->error($model, 'phone'); ?>

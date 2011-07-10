@@ -45,7 +45,7 @@ class AccountController extends Controller {
     }
 
     public function actionIndex() {
-
+        $this->layout='//layouts/column2';
         $model = $this->loadModel(Yii::app()->user->id);
         $this->render('index', array(
             'model' => $model,
@@ -68,16 +68,31 @@ class AccountController extends Controller {
      * @param integer $id the ID of the model to be updated
      */
     public function actionUpdate($p='general') {
-        $this->layout='//layouts/column2';
-        if (in_array($p,array('general','password','phone','email','question'))===false)
-                $p='general';
-        
+        $this->layout = '//layouts/column2';
+        if (in_array($p, array('general', 'password', 'phone', 'email', 'question')) === false)
+            $p = 'general';
+
         $model = $this->loadModel(Yii::app()->user->id);
-        
+
         if (isset($_POST['Account'])) {
-            $model->attributes = $_POST['Account'];
-            if ($model->save())
-                Yii::app()->user->setFlash('account_updated', 'Contul a fost actualizat cu succes.');
+            $model->setScenario('ch' . $p);
+            if ($p === 'phone') {
+                $stored = $model->storeOldValue($model->phone);
+            } elseif ($p === 'email') {
+                $stored = $model->storeOldValue($model->email);
+            } elseif ($p === 'question') {
+                // storing the answer hash and the old question ID in json format;
+                $stored = $model->storeOldValue(json_encode(array($model->security_question => $model->security_answer)));
+            } else {
+                $stored = true;
+            }
+            if ($stored) {
+                $model->attributes = $_POST['Account'];
+                if ($model->save())
+                    Yii::app()->user->setFlash('account_updated', 'Contul a fost actualizat cu succes.');
+            } else {
+                $model->addError('', 'A apărut o eroare. Vă rugăm încercați din nou.');
+            }
         }
 
         $this->render('update', array(
@@ -140,7 +155,6 @@ class AccountController extends Controller {
      * @param integer $code The activation code
      */
     public function actionActivate($code=0) {
-        $this->layout = '//layouts/column1';
         if (isset($_POST['code']) && $_POST['code']) {
             $code = $_POST['code'];
         }
@@ -151,6 +165,7 @@ class AccountController extends Controller {
                     $model->setScenario('setupPassword');
                     $model->attributes = $_POST['Account'];
                     $model->activation = '';
+                    $model->registered = time();
                     if ($model->save()) {
                         Yii::app()->user->setFlash('activate', 1);
                         $this->redirect(array('site/index'));
@@ -169,6 +184,7 @@ class AccountController extends Controller {
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
+     * @return Account The requested model
      */
     public function loadModel($id=false) {
         if ($this->_model === null) {

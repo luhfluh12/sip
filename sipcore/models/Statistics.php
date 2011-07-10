@@ -12,7 +12,7 @@
  * @property integer $value
  *
  * The followings are the available model relations:
- * @property Classes $class0
+ * @property Classes $rClass
  */
 class Statistics extends StatisticsCalc
 {

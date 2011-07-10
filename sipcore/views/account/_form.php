@@ -13,11 +13,7 @@
 		<?php echo $form->error($model,'old_password'); ?>
 	</div>
         <h1>Schimbare e-mail</h1>
-        <div class="row">
-		<?php echo $form->labelEx($model,'email'); ?>
-		<?php echo $form->textField($model,'email',array('size'=>60,'maxlength'=>254)); ?>
-		<?php echo $form->error($model,'email'); ?>
-	</div>
+
 
         <h1>Schimbare număr de telefon</h1>
         <span class="note">Scrieți numărul în format internațional (ex. 40745xxxxxx)</span>

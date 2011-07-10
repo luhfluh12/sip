@@ -15,8 +15,10 @@
  * @property integer $last_login
  * @property string $last_ip
  * @property integer $registered
- * 
- * The followings are the available model relations:
+ * @property integer $sms_hour1
+ * @property integer $sms_hour2
+ * @property string $security_question
+ * @property string $security_answer
  * @property array $rAccountRevisions
  */
 class Account extends CActiveRecord {
@@ -67,24 +69,32 @@ class Account extends CActiveRecord {
     public function rules() {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
+        // scenarios: chgeneral, chpassword, chemail, chphone, chquestion, setupPassword, insert
         return array(
-            array('phone', 'required', 'on' => 'insert, update'),
-            array('password', 'required', 'on' => 'update'),
-            array('old_password', 'required', 'on' => 'update'),
-            array('old_password', 'validatePassword_rule', 'on' => 'update'),
-            array('new_password', 'compare', 'compareAttribute' => 'new_password2', 'on' => 'update, setupPassword'),
-            array('phone', 'numerical', 'allowEmpty' => false, 'integerOnly' => true),
-            array('phone', 'unique', 'allowEmpty' => false),
-            array('email', 'email', 'allowEmpty' => true),
-            array('email', 'unique', 'allowEmpty' => true),
-            array('name', 'filter', 'filter' => array('CHtml', 'encode')),
-            array('new_password', 'length', 'min' => 6, 'allowEmpty' => true, 'on' => 'update, setupPassword'),
-            array('new_password, new_password2', 'safe', 'on' => 'setupPassword'),
-            array('phone, password, old_password, email, name', 'unsafe', 'on' => 'setupPassword'),
-            array('old_password, new_password, new_password2', 'safe', 'on' => 'update'),
+            array('phone', 'required', 'on' => 'insert, chphone'),
+            array('phone', 'match', 'pattern' => '/^\+?[0-9]{7,15}$/', 'on' => 'insert, chphone'),
+            array('phone', 'unique', 'allowEmpty' => false, 'on' => 'insert, chphone'),
+            
+            array('new_password', 'length', 'min' => 6, 'allowEmpty' => true, 'on' => 'setupPassword, chpassword'),
+            array('new_password, new_password2', 'safe', 'on' => 'setupPassword, chpassword'),
+            array('new_password', 'compare', 'compareAttribute' => 'new_password2', 'on' => 'chpassword, setupPassword'),
+            array('old_password', 'required', 'on' => 'chpassword', 'message'=>'Trebuie să scrieți parola veche.'),
+            array('old_password', 'validatePassword_rule', 'on' => 'chpassword', 'skipOnError'=>true),
+            
+            array('email', 'email', 'allowEmpty' => true, 'on' => 'insert, chemail'),
+            array('email', 'unique', 'allowEmpty' => true, 'on' => 'insert, chemail'),
+            
+            array('name', 'filter', 'filter' => array('CHtml', 'encode'), 'on' => 'chgeneral'),
+            
+            array('sms_hour1, sms_hour2', 'numerical', 'min'=>0, 'max'=>23, 'integerOnly'=>true, 'allowEmpty'=>false, 'on'=>'chgeneral'),
+            
+            array('security_question', 'numerical', 'integerOnly'=>true, 'allowEmpty'=>false, 'on'=>'chquestion'),
+            array('security_question', 'exist', 'className'=>'SecurityQuestion', 'attributeName'=>'id', 'allowEmpty'=>false, 'on'=>'chquestion'),
+            array('security_answer','length', 'min'=>3, 'allowEmpty'=>false, 'on'=>'chquestion'),
+            
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('email', 'safe', 'on' => 'search'),
+            array('email, phone, name', 'safe', 'on' => 'search'),
         );
     }
 
@@ -96,6 +106,7 @@ class Account extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'rAccountRevisions' => array(self::HAS_MANY, 'AccountRevision', 'account'),
+            'rSecurityQuestion' => array(self::BELONGS_TO, 'SecurityQuestion', 'security_question'),
             'rStudent' => array(self::HAS_MANY, 'Students', 'parent'),
             'rStudentCount' => array(self::STAT, 'Students', 'parent'),
             'rClass' => array(self::HAS_ONE, 'Classes', 'teacher'),
@@ -108,13 +119,18 @@ class Account extends CActiveRecord {
     public function attributeLabels() {
         return array(
             'type' => 'Tip cont',
-            'name' => 'Nume complet (nume, prenume)',
+            'name' => 'Nume complet',
             'email' => 'Adresă e-mail',
             'password' => 'Parolă',
             'phone' => 'Telefon',
             'old_password' => 'Parola',
             'new_password' => 'Parolă nouă',
             'new_password2' => 'Parolă nouă (verificare)',
+            'security_question' => 'Întrebare de securitate',
+            'security_answer' => 'Răspunsul întrebării de securitate',
+            'registred' => 'Înregistrat',
+            'sms_hour1' => 'Primesc SMS-uri începând cu ora',
+            'sms_hour2' => 'Primesc SMS-uri până la ora'
         );
     }
 
@@ -211,24 +227,46 @@ class Account extends CActiveRecord {
      * Stores a new AccountRevision, using the Account's scenario
      * and the given old value
      * @param string $oldvalue The value that was changed
+     * @param string $action The specified action. Defaults to the current scenario
      * @return boolean Whether the revision was saved 
      */
-    public function storeOldValue($oldvalue) {
+    public function storeOldValue($oldvalue, $action=false) {
         $revision = new AccountRevision;
         $revision->oldvalue = $oldvalue;
-        $revision->action = $this->getScenario();
+        $revision->action = $action === false ? $this->getScenario() : $action;
         $revision->account = $this->id;
         return $revision->save();
     }
-    
+
+    /**
+     * Changes the given romanian phone number in international format
+     * If the no starts with a +, the value same value will be returned
+     * @param string $no The number to be standardized (internationalized)
+     * @return string The number in international format
+     */
+    public static function standardizePhone($no) {
+        if (mb_strlen($no) === 10 && mb_strcut($no, 0, 2) === '07') {
+            return '+4' . $no;
+        } elseif (mb_strlen($no) === 9 && mb_strcut($no, 0, 1) === '7') {
+            return '+40' . $no;
+        }
+        return $no;
+    }
+
     protected function beforeSave() {
         if (parent::beforeSave()) {
+            $this->phone = self::standardizePhone($this->phone);
+
+            // salt and hash the security answer
+            if ($this->getScenario()==='chquestion') {
+                $this->security_answer = $this->hashPassword(strtolower($this->security_answer));
+            }
             if ($this->isNewRecord) {
                 $this->generateActivationCode();
             } else {
                 if (!empty($this->new_password)) {
                     $this->password = $this->hashPassword($this->new_password);
-                    if ($this->storeOldValue('')===false) {
+                    if ($this->storeOldValue('', 'chpassword') === false) {
                         $this->addError('new_password', 'A apărut o eroare. Vă rugăm încercați din nou.');
                         return false;
                     }
