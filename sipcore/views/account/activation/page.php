@@ -7,8 +7,16 @@ $this->sip_title = "Activare cont";
 ?>
 <div class="span-5" style="margin-right:20px;">
     <?php foreach ($steps as $s => $desc): ?>
-        <div class="step-general step-<?php if ($s===$step) { echo 'active'; } elseif ($s>$step) { echo 'coming'; } else { echo 'done'; }?>">
-            <?php if ($s===$step): ?>
+        <div class="step-general step-<?php
+    if ($s === $step) {
+        echo 'active';
+    } elseif ($s > $step) {
+        echo 'coming';
+    } else {
+        echo 'done';
+    }
+        ?>">
+                 <?php if ($s === $step): ?>
                 <div class="arrow"></div>
             <?php endif; ?>
             <div>Pasul <?php echo $s; ?></div>
@@ -21,8 +29,11 @@ $this->sip_title = "Activare cont";
 <div class="span-17 last">
     <h1><?php echo $steps[$step]; ?></h1>
     <?php if (isset($error)): ?>
-    <div class="flash-error"><?php echo $error; ?></div>
+        <div class="flash-error"><?php echo $error; ?></div>
     <?php endif; ?>
-    <?php $this->renderPartial('activation/step'.$step, isset($model) ? array('model'=>$model, 'code'=>$code) : array()); ?>
+    <?php if (Yii::app()->user->hasFlash('resent')): ?>
+        <div class="flash-success"><?php echo Yii::app()->user->getFlash('resent'); ?></div>
+    <?php endif; ?>
+    <?php $this->renderPartial('activation/step' . $step, isset($model) ? array('model' => $model, 'code' => $code) : array()); ?>
 </div>
 

@@ -33,6 +33,7 @@ class Account extends CActiveRecord {
 
     /**
      * Returns the static model of the specified AR class.
+     * @param #D__CLASS__|? $className
      * @return Account the static model class
      */
     public static function model($className=__CLASS__) {
@@ -74,24 +75,18 @@ class Account extends CActiveRecord {
             array('phone', 'required', 'on' => 'insert, chphone'),
             array('phone', 'match', 'pattern' => '/^\+?[0-9]{7,15}$/', 'on' => 'insert, chphone'),
             array('phone', 'unique', 'allowEmpty' => false, 'on' => 'insert, chphone'),
-            
             array('new_password', 'length', 'min' => 6, 'allowEmpty' => true, 'on' => 'setupPassword, chpassword'),
             array('new_password, new_password2', 'safe', 'on' => 'setupPassword, chpassword'),
             array('new_password', 'compare', 'compareAttribute' => 'new_password2', 'on' => 'chpassword, setupPassword'),
-            array('old_password', 'required', 'on' => 'chpassword', 'message'=>'Trebuie să scrieți parola veche.'),
-            array('old_password', 'validatePassword_rule', 'on' => 'chpassword', 'skipOnError'=>true),
-            
+            array('old_password', 'required', 'on' => 'chpassword', 'message' => 'Trebuie să scrieți parola veche.'),
+            array('old_password', 'validatePassword_rule', 'on' => 'chpassword', 'skipOnError' => true),
             array('email', 'email', 'allowEmpty' => true, 'on' => 'insert, chemail'),
             array('email', 'unique', 'allowEmpty' => true, 'on' => 'insert, chemail'),
-            
             array('name', 'filter', 'filter' => array('CHtml', 'encode'), 'on' => 'chgeneral'),
-            
-            array('sms_hour1, sms_hour2', 'numerical', 'min'=>0, 'max'=>23, 'integerOnly'=>true, 'allowEmpty'=>false, 'on'=>'chgeneral'),
-            
-            array('security_question', 'numerical', 'integerOnly'=>true, 'allowEmpty'=>false, 'on'=>'chquestion'),
-            array('security_question', 'exist', 'className'=>'SecurityQuestion', 'attributeName'=>'id', 'allowEmpty'=>false, 'on'=>'chquestion'),
-            array('security_answer','length', 'min'=>3, 'allowEmpty'=>false, 'on'=>'chquestion'),
-            
+            array('sms_hour1, sms_hour2', 'numerical', 'min' => 0, 'max' => 23, 'integerOnly' => true, 'allowEmpty' => false, 'on' => 'chgeneral'),
+            array('security_question', 'numerical', 'integerOnly' => true, 'allowEmpty' => false, 'on' => 'chquestion'),
+            array('security_question', 'exist', 'className' => 'SecurityQuestion', 'attributeName' => 'id', 'allowEmpty' => false, 'on' => 'chquestion'),
+            array('security_answer', 'length', 'min' => 3, 'allowEmpty' => false, 'on' => 'chquestion'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
             array('email, phone, name', 'safe', 'on' => 'search'),
@@ -130,7 +125,7 @@ class Account extends CActiveRecord {
             'security_answer' => 'Răspunsul întrebării de securitate',
             'registred' => 'Înregistrat',
             'sms_hour1' => 'Primesc SMS-uri începând cu ora',
-            'sms_hour2' => 'Primesc SMS-uri până la ora'
+            'sms_hour2' => 'Primesc SMS-uri până la ora',
         );
     }
 
@@ -162,6 +157,15 @@ class Account extends CActiveRecord {
     }
 
     /**
+     * Checks the answer of the security question
+     * @param string $answer
+     * @return boolean Whether the answer is correct or not
+     */
+    public function validateQuestion($answer) {
+        return $this->security_answer === $this->hashPassword(strtolower($answer));
+    }
+
+    /**
      * Adds an error if the given attribute is not the password of the account
      * Checking is done using @link $this->validatePassword
      * @param string $attribute
@@ -180,17 +184,32 @@ class Account extends CActiveRecord {
         do {
             $this->_activation = $this->randomString($len, true);
             $this->activation = hash("sha512", $this->_activation);
-        } while (Account::model()->findByAttributes(array('activation' => $this->activation)) !== null);
+        } while (Account::model()->exists('activation=:a', array(':a' => $this->activation)) === true);
     }
 
     /**
      * Get Account model by the specified activation code
      * @param string $code The activation code user inserted
+     * @param string $condition findByAttributes second argument
+     * @param array $params findByAttributes third argument
      * @return Account The requested model or NULL if it doesn't exist
      */
-    public static function findByActivationCode($code) {
+    public static function findByActivationCode($code, $condition='', $params=array()) {
         $code = hash('sha512', $code);
-        return Account::model()->findByAttributes(array('activation' => $code));
+        return Account::model()->findByAttributes(array('activation' => $code), $condition, $params);
+    }
+
+    /**
+     * Get Account model by the login value (email or phone)
+     * @param string $login Email or phone to search for
+     * @param string $condition findByAttributes second argument
+     * @param array $params findByAttributes third argument
+     * @return Account The requested model or NULL if it doesn't exist
+     */
+    public static function findByLogin($login, $condition='', $params=array()) {
+        if (mb_strpos($login, '@'))
+            return self::model()->findByAttributes(array('email' => $login), $condition, $params);
+        return self::model()->findByAttributes(array('phone' => $login), $condition, $params);
     }
 
     /**
@@ -227,9 +246,10 @@ class Account extends CActiveRecord {
      * Stores a new AccountRevision, using the Account's scenario
      * and the given old value
      * @param string $oldvalue The value that was changed
-     * @param string $action The specified action. Defaults to the current scenario
-     * @return boolean Whether the revision was saved 
+     * @param bool|string $action The specified action. Defaults to the current scenario
+     * @return boolean Whether the revision was saved
      */
+
     public function storeOldValue($oldvalue, $action=false) {
         $revision = new AccountRevision;
         $revision->oldvalue = $oldvalue;
@@ -258,7 +278,7 @@ class Account extends CActiveRecord {
             $this->phone = self::standardizePhone($this->phone);
 
             // salt and hash the security answer
-            if ($this->getScenario()==='chquestion') {
+            if ($this->getScenario() === 'chquestion') {
                 $this->security_answer = $this->hashPassword(strtolower($this->security_answer));
             }
             if ($this->isNewRecord) {
@@ -351,5 +371,4 @@ class Account extends CActiveRecord {
             'criteria' => $criteria,
         ));
     }
-
 }

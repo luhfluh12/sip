@@ -34,7 +34,7 @@ class AccountController extends Controller {
                 'users' => array('@'),
             ),
             array('allow',
-                'actions' => array('reset', 'activate'),
+                'actions' => array('lostPassword', 'activate', 'lostActivationCode'),
                 'users' => array('?'),
             ),
             array('deny', // deny all users
@@ -133,23 +133,30 @@ class AccountController extends Controller {
         ));
     }
 
-    public function actionReset($step=1) {
-        $step = (int) $step;
-        if ($step === 1) {
-            echo "Step 1: Enter your e-mail adress or phone no.";
-        } elseif ($step === 2) {
-            echo "Step 2: Enter the code you received in the e-mail/phone. (you can just click the link if you used email)";
-        } elseif ($step === 3) {
-            echo "Step 3: Enter your SIP-Registred child's FULL name:";
-        } elseif ($step === 4) {
-            echo "Step 4: Choose a new password:";
-        } elseif ($step === 5) {
-            echo "Congratulations. Your new password has been saved. You can now login.";
-        } else {
-            echo "nothing found.";
-        }
+    public function actionLostPassword() {
+        $this->render('reset');
     }
 
+    /**
+     * Helps user resent the activation code (actually, regenerate and resend)
+     */
+    public function actionLostActivationCode() {
+        if (isset($_POST['login'])) {
+            $model = Account::findByLogin($_POST['login']);
+            if ($model===null) {
+                $error = 'Numărul de telefon sau adresa de e-mail introdusă nu este înregistrată în SIP.';
+            } elseif (!$model->activation) {
+                $error = 'Contul dvs. este deja activ. Nu vă putem retrimite codul de activare.';
+            } else {
+                $model->generateActivationCode();
+                $model->save();
+                Yii::app()->user->setFlash('resent','Un nou cod de activare a fost generat și trimis. În cazul e-mail-ului, vă rugăm să verificați folderele SPAM și BULK.');
+                $this->redirect(array('account/activate'));
+            }
+        }
+        $this->render('activation/regenerate', isset($error) ? array('error'=>$error) : array());
+    }
+    
     /**
      * Helps user login and proceed to account setup
      * @param integer $code The activation code

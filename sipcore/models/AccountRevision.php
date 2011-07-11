@@ -15,10 +15,11 @@
  */
 class AccountRevision extends CActiveRecord
 {
-	/**
-	 * Returns the static model of the specified AR class.
-	 * @return AccountRevision the static model class
-	 */
+    /**
+     * Returns the static model of the specified AR class.
+     * @param #D__CLASS__|? $className
+     * @return AccountRevision the static model class
+     */
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -44,12 +45,12 @@ class AccountRevision extends CActiveRecord
 		);
 	}
         
-        protected function beforeSave () {
-            if ($this->isNewRecord) {
-                $this->ip = Yii::app()->request->getUserHostAddress();
-                $this->useragent = Yii::app()->request->getUserAgent();
-                $this->timestamp=time();
-            }
-            return true;
+    protected function beforeSave () {
+        if ($this->isNewRecord) {
+            $this->ip = Yii::app()->request->getUserHostAddress();
+            $this->useragent = Yii::app()->request->getUserAgent();
+            $this->timestamp=time();
         }
+        return true;
+    }
 }
