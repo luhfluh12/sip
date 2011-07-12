@@ -100,6 +100,7 @@ class Account extends CActiveRecord {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
+            'rAuthorizations' => array(self::HAS_MANY, 'Authorization', 'account'),
             'rAccountRevisions' => array(self::HAS_MANY, 'AccountRevision', 'account'),
             'rSecurityQuestion' => array(self::BELONGS_TO, 'SecurityQuestion', 'security_question'),
             'rStudent' => array(self::HAS_MANY, 'Students', 'parent'),

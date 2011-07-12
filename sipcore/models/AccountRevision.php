@@ -17,7 +17,6 @@ class AccountRevision extends CActiveRecord
 {
     /**
      * Returns the static model of the specified AR class.
-     * @param #D__CLASS__|? $className
      * @return AccountRevision the static model class
      */
 	public static function model($className=__CLASS__)

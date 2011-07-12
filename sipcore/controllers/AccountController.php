@@ -135,6 +135,9 @@ class AccountController extends Controller {
 
     public function actionLostPassword() {
         $this->render('reset');
+        /**
+         * @todo account reset system
+         */
     }
 
     /**
