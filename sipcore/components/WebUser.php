@@ -1,7 +1,8 @@
 <?php
 
 class WebUser extends CWebUser {
-
+    protected $_access=array();
+    protected $_model=null;
     /**
      * Checks if the logged in account has access to the requestied action. 
      * To add more actions, with "AND" condition separate them with "&". 
@@ -13,12 +14,12 @@ class WebUser extends CWebUser {
      * @example addMarkClass:9&addMarkSubject:4|addMark:8
      * @param string $operation The action(s) to check
      */
-    public function checkAccess($operation) {
+    public function checkAccess($operation, $params=array(), $allowCache=true) {
         // not available for guests
         if ($this->getIsGuest()===true)
                 return false;
         // make the actual check
-        $actinos = explode("&", $operation);
+        $actions = explode("&", $operation);
         foreach ($actions as $action) {
             $result = $this->checkAction($action);
             if ($result === false)
@@ -50,6 +51,11 @@ class WebUser extends CWebUser {
             // if no cache found, make the check and return the result:
             return $this->_access[$action][$value] = Authorization::model()->authExists($this->getId(), $action, $value);
        }
+    }
+    public function model() {
+        if ($this->_model!==null)
+                return $this->_model;
+        return $this->_model = Account::model()->findByPk($this->getId());
     }
 
 }

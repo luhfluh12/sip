@@ -4,7 +4,7 @@ class SendCommand extends CConsoleCommand {
     public function actionIndex ($limit=5) {
         echo "SIPonline SMS sending CronJob: ALL\nChecking drafts...";
         $drafts = Sms::model()->checkDrafts($limit);
-        echo $drafts." drafts were rendered and sent. \nSending register informations...";
+        echo $drafts." drafts were rendered and sent. \nSending register informations...\n";
         $register = Sms::model()->checkToSend($limit);
         echo $register. " messages were sent.\n";
         echo "Total messages sent: ".($register+$drafts)."\n";

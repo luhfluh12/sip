@@ -33,28 +33,10 @@ class Account extends CActiveRecord {
 
     /**
      * Returns the static model of the specified AR class.
-     * @param #D__CLASS__|? $className
      * @return Account the static model class
      */
     public static function model($className=__CLASS__) {
         return parent::model($className);
-    }
-
-    public function getHomePage() {
-        if ($this->type == Account::TYPE_PARENT) {
-            if ($this->rParent->rStudentCount > 1)
-                return array('parents/view', 'id' => $this->info);
-            else {
-                $g = $this->rParent->rStudent;
-                if (is_array($g) && $g[0] !== null)
-                    return array('student/view', 'id' => $g[0]->id);
-                else
-                    return array('parents/view', 'id' => $this->info);
-            }
-        } elseif ($this->type == Account::TYPE_TEACHER)
-            return array('classes/view', 'id' => $this->rTeacher->class);
-        else
-            return array('account/index');
     }
 
     /**
