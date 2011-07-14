@@ -145,7 +145,7 @@ class AccountController extends Controller {
      */
     public function actionLostActivationCode() {
         if (isset($_POST['login'])) {
-            $model = Account::findByLogin($_POST['login']);
+            $model = Account::model()->findByLogin($_POST['login']);
             if ($model===null) {
                 $error = 'Numărul de telefon sau adresa de e-mail introdusă nu este înregistrată în SIP.';
             } elseif (!$model->activation) {
@@ -169,7 +169,7 @@ class AccountController extends Controller {
             $code = $_POST['code'];
         }
         if ($code !== 0) {
-            $model = Account::findByActivationCode($code);
+            $model = Account::model()->findByActivationCode($code);
             if ($model !== null) {
                 if (isset($_POST['Account'])) {
                     $model->setScenario('setupPassword');
