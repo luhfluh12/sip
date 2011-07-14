@@ -18,12 +18,7 @@ class UserIdentity extends CUserIdentity {
     private $_id;
 
     public function authenticate() {
-        if (strpos($this->username, '@') !== false) {
-            $email = strtolower($this->username);
-            $account = Account::model()->find("LOWER(email)=?", array($email));
-        } else {
-            $account = Account::model()->find("phone=?", array($this->username));
-        }
+        $account = Account::model()->findByLogin($this->username);
         if ($account === null)
             $this->errorCode = self::ERROR_USERNAME_INVALID;
         else if (!$account->validatePassword($this->password))

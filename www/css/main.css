@@ -521,3 +521,20 @@ div.search-form
     padding:7px;
     margin:7px;
 }
+.bigmenu {
+    list-style-type: none;
+}
+.bigmenu a{
+    display:block;
+    font-size: 25px;
+    padding: 6px 15px;
+}
+.bigmenu  a {
+    text-decoration: none;
+    color:#227;
+}
+.bigmenu a:hover {
+    background-color: #FF5500;
+    color:#fff;
+    text-decoration: none;
+}

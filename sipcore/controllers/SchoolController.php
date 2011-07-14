@@ -70,6 +70,9 @@ class SchoolController extends Controller
 		if(isset($_POST['School'], $_POST['Account']))
 		{
 			$school->attributes=$_POST['School'];
+                        // checks if the phone no already exists in db
+                        
+                        
                         $account->attributes=$_POST['Account'];
                         
                         $account->password=$account->randomString(12);

@@ -36,6 +36,7 @@ class School extends CActiveRecord {
             array('name, city', 'required'),
             array('name', 'length', 'max' => 100),
             array('city', 'length', 'max' => 50),
+            array('name, city','filter', 'filter' => array('CHtml', 'encode')),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
             array('name, city', 'safe', 'on' => 'search'),

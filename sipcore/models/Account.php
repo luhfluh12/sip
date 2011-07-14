@@ -177,9 +177,9 @@ class Account extends CActiveRecord {
      * @param array $params findByAttributes third argument
      * @return Account The requested model or NULL if it doesn't exist
      */
-    public static function findByActivationCode($code, $condition='', $params=array()) {
+    public function findByActivationCode($code, $condition='', $params=array()) {
         $code = hash('sha512', $code);
-        return Account::model()->findByAttributes(array('activation' => $code), $condition, $params);
+        return $this->findByAttributes(array('activation' => $code), $condition, $params);
     }
 
     /**
@@ -189,10 +189,10 @@ class Account extends CActiveRecord {
      * @param array $params findByAttributes third argument
      * @return Account The requested model or NULL if it doesn't exist
      */
-    public static function findByLogin($login, $condition='', $params=array()) {
+    public function findByLogin($login, $condition='', $params=array()) {
         if (mb_strpos($login, '@'))
-            return self::model()->findByAttributes(array('email' => $login), $condition, $params);
-        return self::model()->findByAttributes(array('phone' => $login), $condition, $params);
+            return $this->findByAttributes(array('email' => $login), $condition, $params);
+        return $this->findByAttributes(array('phone' => self::standardizePhone($login)), $condition, $params);
     }
 
     /**
