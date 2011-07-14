@@ -11,19 +11,17 @@
             'title'=>'Statistici',
             'text'=>'Este usor sa observi in ce directie merge elevul cu graficele noastre lunare si semestriale.'),
     );
+$this->widget('zii.widgets.CMenu', array(
+    'items'=>array(
+        array('label'=>'Contul meu', 'url'=>array('account/index')),
+        array('label'=>'Lista de școli înscrise în SIP', 'url'=>array('school/index')),
+        array('label'=>'Vacanțe','url'=>array('breaks/index'),'visible'=>Yii::app()->user->checkAccess('admin')),
+        array('label'=>'Centrul de ajutor','url'=>array('/help/post/index')),
+        array('label'=>'Întrebări de securitate','url'=>array('securityQuestion/index'),'visible'=>Yii::app()->user->checkAccess('admin')),
+        
+    ),
+    'htmlOptions'=>array(
+        'class'=>'bigmenu',
+    ),
+));
 ?>
-
-<h1>Welcome to <i><?php echo CHtml::encode(Yii::app()->name); ?></i></h1>
-
-<p>Congratulations! You have successfully created your Yii application.</p>
-
-<p>You may change the content of this page by modifying the following two files:</p>
-<ul>
-	<li>View file: <tt><?php echo __FILE__; ?></tt></li>
-	<li>Layout file: <tt><?php echo $this->getLayoutFile('main'); ?></tt></li>
-</ul>
-
-<p>For more details on how to further develop this application, please read
-the <a href="http://www.yiiframework.com/doc/">documentation</a>.
-Feel free to ask in the <a href="http://www.yiiframework.com/forum/">forum</a>,
-should you have any questions.</p>

@@ -14,7 +14,12 @@
 ?>
 
 <div class="span-17">
-    <h1>Sistem de informare a părinților</h1><br /><br /><br />
+    <h1>Sistem de informare a părinților</h1>
+    <?php ?>
+    <?php if(Yii::app()->user->getFlash('activate',false)!==false): ?>
+        <div class="flash-success">Contul dvs. a fost activat cu succes. Acum vă puteți conecta.</div>
+    <?php endif; ?>
+    
     <img src="css/whatissip.jpg" alt="ce e sip?"/>
     <div class="clearfix" style="font-size:15px;max-width:550px;">
         
@@ -48,7 +53,10 @@
             <div class="row buttons">
                     <?php echo CHtml::submitButton('Conectează-mă'); ?>
             </div>
-            <p class="note">Ați uitat parola? Urmați pașii de resetare a parolei.</p>
+            <p class="minimenu">
+                <?php echo CHtml::link('Ați uitat parola? Urmați pașii de resetare a parolei',array('account/lostPassword')); ?>
+                <?php echo CHtml::link('Prima dată aici? Activați-vă contul acum.',array('account/activate')); ?>
+            </p>
     <?php $this->endWidget(); ?>
     </div><!-- form -->
 </div>

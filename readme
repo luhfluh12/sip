@@ -1,0 +1,10 @@
+this project needs:
+
+- mysql database
+- apache2
+- php
+
+it was NEVER tested on Windows
+
+====
+this version is for demonstration purposes only and the passwords and the db schema are missing - no SMSes, no emails.
