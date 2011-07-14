@@ -1,0 +1,8 @@
+SIP uses its own authorization system, overwriting the RBAC system YiiFramework comes with.
+
+The following Authorizations are currently used (please keep this list updated):
+
+Auth name       :   with PK of the model:
+admin           :   0
+schoolmanager   :   School
+

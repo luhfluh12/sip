@@ -8,6 +8,8 @@
  * @property string $name
  * @property string $city
  * @property integer $account
+ * @property array $rClasses
+ * @property Account $rAccount
  */
 class School extends CActiveRecord {
 
@@ -51,8 +53,7 @@ class School extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'rClasses' => array(self::HAS_MANY, 'Classes', 'school', 'order' => 'grade ASC, name ASC'),
-            'rStudent' => array(self::HAS_MANY, 'Students', 'school'),
-            'rTeacher' => array(self::HAS_MANY, 'Teacher', 'school'),
+            'rAccount' => array(self::BELONGS_TO, 'Account', 'account'),
         );
     }
 
@@ -84,16 +85,4 @@ class School extends CActiveRecord {
             'criteria' => $criteria,
         ));
     }
-
-    public function getList() {
-        $criteria = new CDbCriteria;
-        $criteria->select = "id, name, city";
-        $r = self::model()->findAll($criteria);
-        $result = array();
-        foreach ($r as $obj) {
-            $result[$obj->id] = $obj->name . ' ' . $obj->city;
-        }
-        return $result;
-    }
-
 }
