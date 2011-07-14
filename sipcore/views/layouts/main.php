@@ -31,10 +31,7 @@
     	<div id="mainmenu">
              <?php $this->widget('zii.widgets.CMenu',array(
             	'items'=>array(
-                    array('label'=>'Home', 'url'=>array('/site/index'),
-                        'visible'=>Yii::app()->user->isGuest),
-                    array('label'=>'Home', 'url'=>array('/site/user'),
-                        'visible'=>!Yii::app()->user->isGuest),
+                    array('label'=>'Home', 'url'=>array('/site/index')),
                     array('label'=>'Scoli', 'url'=>array('/school/index')),
                     array('label'=>'Contul meu',
                         'url'=>array('/account/index'),
