@@ -5,7 +5,7 @@ $this->breadcrumbs = array(
     '',
 );
 
-$this->pageTitle = 'Actualizare clasă (admin)';
+$this->pageTitle = 'Actualizare clasă';
 ?>
 
 <div class="form">
@@ -18,12 +18,7 @@ $this->pageTitle = 'Actualizare clasă (admin)';
     ?>
 
     <?php echo $form->errorSummary(array($class)); ?>
-    <div class="row">
-        <?php echo $form->labelEx($class, 'school'); ?>
-        <?php echo $form->dropDownList($class, 'school', CHtml::listData(School::model()->findAll(), 'id', 'name')); ?>
-        <?php echo $form->error($class, 'school'); ?>
-    </div>
-    
+
     <div class="row">
         <?php echo $form->labelEx($class, 'grade'); ?>
         <?php echo $form->textField($class, 'grade'); ?>
@@ -42,17 +37,6 @@ $this->pageTitle = 'Actualizare clasă (admin)';
         <?php echo $form->error($class, 'profile'); ?>
     </div>
 
-    <h1>Limite</h1>
-    <div class="row">
-        <?php echo $form->labelEx($class, 'students'); ?>
-        <?php echo $form->textField($class, 'students', array('size' => 60, 'maxlength' => 2)); ?>
-        <?php echo $form->error($class, 'students'); ?>
-    </div>
-    <div class="row">
-        <?php echo $form->labelEx($class, 'payment'); ?>
-        <?php echo $form->textField($class, 'payment', array('size' => 60, 'maxlength' => 30)); ?>
-        <?php echo $form->error($class, 'payment'); ?>
-    </div>
     <div class="row buttons">
         <?php echo CHtml::submitButton('Salvează modificările'), ' ',
         CHtml::link('renunță', array('classes/view', 'id' => $class->id)); ?>

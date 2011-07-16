@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($school->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php echo CHtml::submitButton('Adaugă școală'); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

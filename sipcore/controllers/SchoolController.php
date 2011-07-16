@@ -13,10 +13,20 @@ class SchoolController extends Controller {
      */
     public function filters() {
         return array(
-            'accessControl', // perform access control for CRUD operations
+            'accessControl - update', // perform access control for CRUD operations
+            'editControl + update'
         );
     }
 
+    public function filterEditControl($c) {
+        if (isset($_GET['id']) && Yii::app()->user->checkAccess('admin') || Yii::app()->user->checkAccess('schoolmanager:'.intval($_GET['id']))) {
+            $c->run();
+            return true;
+        }
+        throw new CHttpException(403, 'Nu aveți acces la această pagină');
+        return false;
+    }
+    
     /**
      * Specifies the access control rules.
      * This method is used by the 'accessControl' filter.
@@ -29,7 +39,7 @@ class SchoolController extends Controller {
                 'users' => array('*'),
             ),
             array('allow',
-                'actions' => array('create', 'update', 'admin', 'delete'),
+                'actions' => array('create', 'admin', 'delete'),
                 'roles' => array('admin'),
             ),
             array('deny', // deny all users
@@ -72,8 +82,9 @@ class SchoolController extends Controller {
                     $error = false;
                 }
                 if ($error===false && $school->save(false)) {
-                    Authorization::model()->give($account->id, 'schoolmanager', $school->id);
-                    //$this->redirect(array('view', 'id' => $school->id));
+                    $auth = new Authorization;
+                    $auth->give($account->id, 'schoolmanager', $school->id);
+                    $this->redirect(array('view', 'id' => $school->id));
                 }
             } else {
                 // validating the $account to display possible errors
@@ -83,7 +94,6 @@ class SchoolController extends Controller {
             }
         } else {
             $account = new Account;
-            echo "bu!";
         }
         $this->render('create', array(
             'school' => $school,
@@ -98,29 +108,17 @@ class SchoolController extends Controller {
      */
     public function actionUpdate($id) {
         $school = $this->loadModel($id);
-        $account = Account::model()->findByAttributes(array('type' => Account::TYPE_SCHOOL, 'info' => $school->id));
-        $account->setScenario('updatePart');
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['School'], $_POST['Account'])) {
+        if (isset($_POST['School'])) {
             $school->attributes = $_POST['School'];
-            $account->attributes = $_POST['Account'];
-
-            $valid = $school->validate();
-            $valid = $account->validate() && $valid;
-
-            if ($valid) {
-                $school->save(false);
-                $account->save(false);
-
+            if ($school->save())
                 $this->redirect(array('view', 'id' => $school->id));
-            }
         }
 
         $this->render('update', array(
             'school' => $school,
-            'account' => $account,
         ));
     }
 
