@@ -3,7 +3,7 @@
 	'attributes'=>array(
             'name:text:Nume elev',
             'rParent.name:text:Părinte',
-            'rParent.adress:text:Adresă',
-            //'rParent.rAccount.phone:text:Telefon părinte',
+            'rParent.phone:text:Telefon părinte',
+            'rParent.email:text:E-mail părinte',
 	),
 )); ?>

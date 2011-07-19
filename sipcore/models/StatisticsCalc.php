@@ -22,20 +22,20 @@ class StatisticsCalc extends CActiveRecord {
     protected function generatorTotalAuthAbsences ($class, $year, $sem) {
         $students = Student::getByClass($class);
         $query = 'SELECT COUNT(id) FROM `absences` WHERE student IN ('.implode(',',$students).') AND authorized=:auth';
-        return Yii::app()->db->createCommand()->setText($query)->queryScalar(array(':auth'=>Absences::STATUS_AUTH));
+        return Yii::app()->db->createCommand()->setText($query)->queryScalar(array(':auth'=>Absence::STATUS_AUTH));
     }
 
     protected function generatorTotalUnauthAbsences ($class, $year, $sem) {
         $students = Student::getByClass($class);
         $query = 'SELECT COUNT(id) FROM `absences` WHERE student IN ('.implode(',',$students).') AND authorized=:auth';
-        return Yii::app()->db->createCommand()->setText($query)->queryScalar(array(':auth'=>Absences::STATUS_UNAUTH));
+        return Yii::app()->db->createCommand()->setText($query)->queryScalar(array(':auth'=>Absence::STATUS_UNAUTH));
     }
     protected function generatorStudentAverages ($class, $year, $sem) {
         $students = Student::getByClass($class);
         foreach ($students as $student) {
             for ($i=1;i<10;$i=$i+2) {
                 $j=$i+1;
-                $avg = Averages::model()->find(array(
+                $avg = Chart::model()->find(array(
                     'student'=>$student,
                     ''
                 ));

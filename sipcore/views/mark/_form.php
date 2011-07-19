@@ -27,7 +27,7 @@ $this->renderPartial('//helpers/_picker',array('model'=>$model,'attr'=>'date','C
            $('#marks_error_".$subject."').html('A apărut o eroare.');
            $('#marks_error_".$subject."').slideDown('fast');
        }",
-)); ?>
+), array('style'=>'float:right;')); ?>
 
 <?php $this->endWidget(); ?>
 <div class="schoolmark_error" id="marks_error_<?php echo $subject; ?>"></div>

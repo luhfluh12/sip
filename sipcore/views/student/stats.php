@@ -18,7 +18,7 @@ $this->widget('system.web.widgets.CTabView',array(
         'tab2'=>array(
             'title'=>'Statistici',
             'view'=>'tab_stats',
-            'data'=>array('averages'=>$student->rAverages),
+            'data'=>array('json'=>$json),
         ),
         'tab3'=>array(
             'title'=>'SMS-uri',

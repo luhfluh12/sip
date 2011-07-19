@@ -8,249 +8,242 @@
  * @property integer $student
  * @property integer $subject
  * @property integer $mark
- * @property string $date
- * @property integer $type
+ * @property integer $date
+ * @property integer $added
+ * @property Subject $rSubject 
+ * @property Student $rStudent
  */
-class Mark extends Schoolitem
-{
-        const TYPE_NORMAL = 1; //notă normală
-        const TYPE_THESIS = 2; //teză
-	/**
-	 * Returns the static model of the specified AR class.
-	 * @return Mark the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
+class Mark extends Schoolitem {
 
-	/**
-	 * @return string the associated database table name
-	 */
-	public function tableName()
-	{
-		return 'marks';
-	}
+    /**
+     * Returns the static model of the specified AR class.
+     * @return Mark the static model class
+     */
+    public static function model($className=__CLASS__) {
+        return parent::model($className);
+    }
 
-	/**
-	 * @return array validation rules for model attributes.
-	 */
-	public function rules()
-	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
-		return array(
-			array('student, subject, mark, date', 'required'),
-			array('student, subject', 'numerical', 'integerOnly'=>true),
-                        array('mark','numerical','integerOnly'=>true,'max'=>10,'min'=>1),
-                        array('subject','exist','className'=>'Subject','attributeName'=>'id','allowEmpty'=>false),
-                        array('student','exist','className'=>'Student','attributeName'=>'id','allowEmpty'=>false),
-                        // The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, student, subject, mark, date', 'safe', 'on'=>'search'),
-		);
-	}
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName() {
+        return 'marks';
+    }
 
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
-		return array(
-                    'rStudent'=>array(self::BELONGS_TO,'Student','student'),
-                    'rSubject'=>array(self::BELONGS_TO,'Subject','subject'),
-		);
-	}
+    /**
+     * @return array validation rules for model attributes.
+     */
+    public function rules() {
+        // NOTE: you should only define rules for those attributes that
+        // will receive user inputs.
+        return array(
+            array('student, subject, mark', 'required'),
+            array('date', 'required', 'on' => 'insert'),
+            array('student, subject', 'numerical', 'integerOnly' => true),
+            array('mark', 'numerical', 'integerOnly' => true, 'max' => 10, 'min' => 1),
+            array('subject', 'exist', 'className' => 'Subject', 'attributeName' => 'id', 'allowEmpty' => false),
+            array('student', 'exist', 'className' => 'Student', 'attributeName' => 'id', 'allowEmpty' => false),
+        );
+    }
 
+    /**
+     * @return array relational rules.
+     */
+    public function relations() {
+        // NOTE: you may need to adjust the relation name and the related
+        // class name for the relations automatically generated below.
+        return array(
+            'rStudent' => array(self::BELONGS_TO, 'Student', 'student'),
+            'rSubject' => array(self::BELONGS_TO, 'Subject', 'subject'),
+        );
+    }
 
-        
-        public function isUniqueMark() {
-            $return = $this->exists('date=:da AND subject=:su AND student=:st', array(
-                ':da'=>$this->date,
-                ':su'=>$this->subject,
-                ':st'=>$this->student,
-            )) === false;
-            if (!$return) $this->addError ('date', 'Elevul are deja o notă în această zi.');
-            return $return;
+    /**
+     * Checks if the student already has a mark at this subject, at this date
+     * @return boolean Whether the current mark is unique or not 
+     */
+    public function isUniqueMark() {
+        return $this->exists('date=:da AND subject=:su AND student=:st', array(
+            ':da' => $this->date,
+            ':su' => $this->subject,
+            ':st' => $this->student,
+        )) === false;
+    }
+
+    public function deleteCurrentThesis($student, $subject) {
+        if ($semester === false) {
+            $semester = $this->currentSemester();
         }
+        return $this->delete('date=:d AND student=:student AND subject=:subject', array(
+            ':d' => 0,
+            ':student' => $student,
+            ':subject' => $subject,
+        ));
+    }
 
-        public function deleteCurrentThesis($student, $subject) {
-            $t = time();
-            $schoolyear=Schoolyear::model()->findByDate($t);
-            $semester=Schoolyear::model()->getSemesterByDate($t, $schoolyear->change);
-            return $this->deleteAll('type=:type AND student=:student AND subject=:subject AND schoolyear=:schoolyear AND semester=:semester',
-                    array(
-                        ':type'=>self::TYPE_THESIS,
-                        ':student'=>$student,
-                        ':subject'=>$subject,
-                        ':schoolyear'=>$schoolyear->id,
-                        ':semester'=>$semester,
-                    ));
-        }
-        public function getCurrentThesis ($student,$subject) {
-            $t = time();
-            $schoolyear=Schoolyear::model()->findByDate($t);
-            $semester=Schoolyear::model()->getSemesterByDate($t, $schoolyear->change);
-            return $this->find('type=:type AND student=:student AND subject=:subject AND schoolyear=:schoolyear AND semester=:semester',
-                    array(
-                        ':type'=>self::TYPE_THESIS,
-                        ':student'=>$student,
-                        ':subject'=>$subject,
-                        ':schoolyear'=>$schoolyear->id,
-                        ':semester'=>$semester,
-                    ));
-        }
-        
-        protected function beforeSave () {
-            if (parent::beforeSave()) {
-                if ($this->rSubject->show==0)
-                        return false;
+    /**
+     * Get the thesis model.
+     * @param integer $student
+     * @param integer $subject
+     * @return Mark The model of the thesis 
+     */
+    public function getCurrentThesis($student, $subject) {
+        return $this->find(array(
+            'condition' => 'date=0 AND student=:st AND subject=:su',
+            'params' => array(
+                ':st' => $student,
+                ':su' => $subject,
+            ),
+        ));
+    }
 
-                $this->added=time();
-                if ($this->getScenario()==='thesis') {
-                    $this->date=$this->added;
-                    $this->type=self::TYPE_THESIS;
-                } else {
-                    $this->date=strtotime($this->date.'.'.Schoolyear::yearByMonth($this->date));
-                    $this->type=self::TYPE_NORMAL;
-                }
+    /**
+     * Get the thesis without creating a model.
+     * @param integer $student
+     * @param integer $subject
+     * @return mixed The thesis or FALSE if it doesn't exist 
+     */
+    public static function getScalarThesis($student, $subject) {
+        $query = "SELECT mark FROM `marks`
+                WHERE student=:student
+                AND subject=:subject
+                AND date=0";
+        $command = Yii::app()->db->createCommand($query);
+        $command->bindValues(array(
+            ':student' => $student,
+            ':subject' => $subject,
+        ));
+        return $command->queryScalar();
+    }
 
-                
-                if ($this->getScenario()!=='thesis' && !$this->isUniqueMark())
-                    return false;
-
-                if (!$this->validateSchoolyear($this->getScenario() === 'thesis' ? false : true))
-                    return false;
-                
-                if ($this->getScenario()!=='thesis') {
-                    if (!Schedule::hasStudentSubject($this->subject, $this->student, $this->date)){
-                        $this->addError('date', 'Această materie nu este în orar '.strtolower(Schedule::getWeekday(date('w',$this->date))));
-                        return false;
-                    }
-                    $break = Breaks::model()->checkDate($this->date);
-                    if ($break!==true) {
-                        $this->addError('date', 'Nu poți adăuga note în '.$break);
-                        return false;
-                    }
-                }
-                return true;
-            } else
+    protected function beforeSave() {
+        if (parent::beforeSave()) {
+            if ($this->rSubject->show == 0)
                 return false;
-        }
-        
-        protected function afterSave () {
-            parent::afterSave();
-            $average = new Averages;
-            $average->student=$this->student;
-            $average->subject=$this->subject;
-            $average->added=$this->added;
-            $average->schoolyear=$this->schoolyear;
-            $average->semester=$this->semester;
-            $average->date=$this->date;
-            $average->type=($this->type===self::TYPE_NORMAL ? Averages::TYPE_CHART : Averages::TYPE_CHART_THESIS);
-            $s = $average->save();
-            if (!$s) return false;
-            Averages::model()->updateAverages($this->student, $this->subject, $this->schoolyear, $this->semester, $this->date ? $this->date : $this->added);
-           return true;
-            
-        }
-        
-        protected function afterDelete() {
-            parent::afterDelete();
-            Averages::model()->deleteAllByAttributes(array(
-                'student'=>$this->student,
-                'subject'=>$this->subject,
-                'date'=>($this->date ?  $this->date : $this->added),
-            ));
-            Averages::model()->updateAverages($this->student, $this->subject, $this->schoolyear, $this->semester, $this->date ? $this->date : $this->added);
+            if ($this->isNewRecord)
+                $this->added = time();
+            if ($this->scenario === 'thesis') {
+                $this->date = 0;
+            } else {
+                $this->date = strtotime($this->date);
+            }
+            if ($this->scenario !== 'thesis') {
+                // only one mark per day
+                if ($this->isUniqueMark() === false) {
+                    $this->addError('date', 'Elevul mai are o notă în această zi.');
+                    return false;
+                }
+
+                // check the date to be in the current semester and schoolyear
+                if ($this->validateDate($this->date) === false) {
+                    $this->addError('date', 'Data nu este în semestrul și anul școlar curent sau este în viitor.');
+                    return false;
+                }
+                // check if the date is in the schedule
+                if (Schedule::hasStudentSubject($this->subject, $this->student, $this->date) === 0) {
+                    $this->addError('date', 'Această materie nu este în orar ' . strtolower(Schedule::getWeekday(date('w', $this->date))));
+                    return false;
+                }
+                // check if the date is in schooltime (and not vacantion)
+                $break = Breaks::isInBreak($this->date);
+                if ($break !== false) {
+                    $this->addError('date', 'Nu poți adăuga note în ' . $break);
+                    return false;
+                }
+            }
             return true;
+        } else
+            return false;
+    }
+
+    protected function afterSave() {
+        parent::afterSave();
+        if ($this->isNewRecord) {
+            $chart = new Chart;
+            $chart->student = $this->student;
+            $chart->subject = $this->subject;
+            $chart->added = $this->added;
+            $chart->date = ($this->date ? $this->date : $this->added);
+            $chart->average = $this->getAverageStudentSubject($this->student, $this->subject, ($this->date ? $this->date : false));
+            if ($chart->save() === false)
+                return false;
+        } else {
+            // thesis can be updated
+            $chart = Chart::model()->find(array(
+                        'select' => 'id',
+                        'condition' => 'student=:student AND subject=:subject AND date=:date',
+                        'params' => array(
+                            'student' => $this->student,
+                            'subject' => $this->subject,
+                            'date' => $this->added,
+                        ),
+                    ));
+            if ($chart) {
+                $chart->average = $this->getAverageStudentSubject($this->student, $this->subject, $this->added);
+                if (!$chart->update(array('average'))) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
-        
-        public function getAverageStudentSubject($student,$subject,$schoolyear,$semester,$timelimit=false) {
-            if ($timelimit===false) $timelimit = time();
-            $query ="SELECT AVG(mark) AS avg FROM ".$this->tableName()."
+
+        Chart::updateAverages($this->student, $this->subject, ($this->date ? $this->date : $this->added));
+        return true;
+    }
+
+    protected function afterDelete() {
+        parent::afterDelete();
+        Chart::model()->deleteAllByAttributes(array(
+            'student' => $this->student,
+            'subject' => $this->subject,
+            'date' => ($this->date ? $this->date : $this->added),
+        ));
+        Chart::updateAverages($this->student, $this->subject, ($this->date ? $this->date : $this->added));
+        return true;
+    }
+
+    /**
+     * Calculates the averaget the student has.
+     * If $timelimit is given, the average is calculated at that tisme.
+     * @param integer $student
+     * @param integer $subject
+     * @param integer $timelimit
+     * @return float The average 
+     */
+    public function getAverageStudentSubject($student, $subject, $timelimit=false) {
+        $query = "SELECT AVG(mark) AS avg FROM " . $this->tableName() . "
                 WHERE student=:student
-                AND subject=:subject
-                AND schoolyear=:schoolyear
-                AND semester=:semester
-                AND date<=:t
-                AND type=:type";
-            $command =Yii::app()->db->createCommand($query);
-            $command->bindValues(array(
-                ':student'=>$student,
-                ':subject'=>$subject,
-                ':schoolyear'=>$schoolyear,
-                ':semester'=>$semester,
-                ':t'=>$timelimit,
-                ':type'=>self::TYPE_NORMAL,
-            ));
-            $data = $command->queryColumn();
-            $avg_marks = $data[0];
-            
-            // check if thesis
-            $query = "SELECT mark AS thesis FROM ".$this->tableName()."
-                WHERE student=:student
-                AND subject=:subject
-                AND schoolyear=:schoolyear
-                AND semester=:semester
-                AND added<=:t
-                AND type=:type";
-            $command=Yii::app()->db->createCommand($query);
-            $command->bindValues(array(
-                ':student'=>$student,
-                ':subject'=>$subject,
-                ':schoolyear'=>$schoolyear,
-                ':semester'=>$semester,
-                ':t'=>$timelimit,
-                ':type'=>self::TYPE_THESIS,
-            ));
-            $data = $command->queryColumn();
-            if (isset($data[0]) && $data[0]!=0)
-                $avg_final = (float) ((3*$avg_marks)+$data[0])/4;
-            else
-                $avg_final = $avg_marks;
-            return $avg_final;
+                AND subject=:subject";
+        if ($timelimit !== false)
+            $query.=" AND date<=:t";
+        $command = Yii::app()->db->createCommand($query);
+        $command->bindValues(array(
+            ':student' => $student,
+            ':subject' => $subject,
+        ));
+        if ($timelimit !== false)
+            $command->bindValue(':t', $timelimit);
+        $avg_marks = $command->queryScalar();
+        $thesis = self::getScalarThesis($student, $subject);
+        if ($thesis) {
+            return (double) (($avg_marks * 3) + $thesis) / 4;
         }
-        
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-                    'id' => 'ID',
-                    'student' => 'Elev',
-                    'subject' => 'Materie',
-                    'mark' => 'Notă',
-                    'date' => 'Data din catalog:',
-                    'added' => 'Data ultimei modificări în SIP:',
-                    'schoolyear' => 'Anul școlar',
-                    'semester' => 'Semestrul',
-                );
-	}
-        
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
+        return $avg_marks;
+    }
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('student',$this->student);
-		$criteria->compare('subject',$this->subject);
-		$criteria->compare('mark',$this->mark);
-		$criteria->compare('date',$this->date,true);
-
-		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
-		));
-	}
+    /**
+     * @return array customized attribute labels (name=>label)
+     */
+    public function attributeLabels() {
+        return array(
+            'id' => 'ID',
+            'student' => 'Elev',
+            'subject' => 'Materie',
+            'mark' => 'Notă',
+            'date' => 'Data din catalog:',
+            'added' => 'Data adăugării în SIP:',
+        );
+    }
 
 }

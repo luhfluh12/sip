@@ -61,7 +61,7 @@ class Classes extends CActiveRecord {
             'rStudentCount' => array(self::STAT, 'Student', 'class'),
             'rAccount' => array(self::BELONGS_TO, 'Account', 'teacher'),
             'rSchedule' => array(self::HAS_MANY, 'Schedule', 'class'),
-            'rSubjects' => array(self::MANY_MANY, 'Subject', 'schedule(class,subject)'),
+            'rSubjects' => array(self::MANY_MANY, 'Subject', 'schedule(class,subject)', 'order'=>'rSubjects.name ASC'),
         );
     }
 

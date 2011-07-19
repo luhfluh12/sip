@@ -375,7 +375,7 @@ div.search-form
 .schoolmark a {color:#06c !important;text-decoration:underline;}
 .schoolmarkEditer {
     display:none;
-    border:1px dashed #06c;
+    border: 1px solid #06c;
     padding:3px;
     background-color:#fff;
     border-radius:3px;

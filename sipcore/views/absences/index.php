@@ -1,5 +1,5 @@
 <div style="font-weight: bold; font-size: 14px;">Absențe</div>
-<?php $absences = Absences::model()->findByStudentAndSubject($student->id, $subject->id); ?>
+<?php $absences = Absence::model()->findByStudentAndSubject($student->id, $subject->id); ?>
 
 <div id="absences_<?php echo $subject->id; ?>">
     <?php foreach ($absences as $absence): ?>
@@ -14,7 +14,7 @@
     <?php $this->renderPartial('//absences/_form',array(
         'student'=>$student->id,
         'subject'=>$subject->id,
-        'model'=>new Absences,
+        'model'=>new Absence,
     )); ?>
 </div>
 <?php endif; ?>

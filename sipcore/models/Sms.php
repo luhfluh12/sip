@@ -11,7 +11,7 @@
  * @property integer $sent
  * @property integer $status
  * The followings are the available model relations:
- * @property Averages $average
+ * @property Chart $average
  */
 class Sms extends CActiveRecord
 {
@@ -250,7 +250,7 @@ class Sms extends CActiveRecord
                     }
                     if ($motivari) $motivari .= '.';
                     if (isset($draft->message[self::ADD_ABSENCES_WARNING]) && $draft->message[self::ADD_ABSENCES_WARNING]) {
-                        $absente = Absences::model()->countByAttributes(array('student'=>$draft->student,'authorized'=>Absences::STATUS_UNAUTH));
+                        $absente = Absence::model()->countByAttributes(array('student'=>$draft->student,'authorized'=>Absence::STATUS_UNAUTH));
                         if ($absente >= self::MAX_ABSENCES_ALLOWED) {
                             $absente = 'Absente nemotivate: '.$absente.'.';
                         }
@@ -258,12 +258,12 @@ class Sms extends CActiveRecord
                    if (isset($draft->message[self::ADD_AVERAGE_LOW])) {
                         $cu3pct=array(); $sub4 = array();
                         foreach ($draft->message[self::ADD_AVERAGE_LOW] as $subject=>$k) {
-                            $medie = Averages::model()->find(array(
+                            $medie = Chart::model()->find(array(
                                 'order'=>'added DESC'
                             ));
                             if ($medie!==null) {
                                 if ($medie->average>4.5) {
-                                    $medie_veche =Averages::model()->find(array(
+                                    $medie_veche =Chart::model()->find(array(
                                         'condition'=>'added!=:added'.(isset($lastSent->added) ? ' AND added<'.$lastSent->added : ''),
                                         'order'=>'added DESC',
                                         'params'=>array(':added'=>$medie->added),

@@ -13,8 +13,6 @@
  */
 class Student extends CActiveRecord {
 
-    private $_purtare = null;
-
     /**
      * Returns the static model of the specified AR class.
      * @return Student the static model class
@@ -37,11 +35,11 @@ class Student extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('name', 'required'),
-            array('name', 'length', 'max' => 200),
-            array('name', 'filter', 'filter' => array('CHtml', 'encode')),
-            array('class', 'exist', 'className'=>'Classes', 'attributeName'=>'id'),
-            array('school', 'exist', 'className'=>'School', 'attributeName'=>'id'),
+            array('name', 'required', 'on'=>'insert,update'),
+            array('name', 'length', 'max' => 200, 'on'=>'insert, update'),
+            array('name', 'filter', 'filter' => array('CHtml', 'encode'), 'on'=>'insert, update'),
+            array('class', 'exist', 'className'=>'Classes', 'attributeName'=>'id', 'on'=>'insert'),
+            array('school', 'exist', 'className'=>'School', 'attributeName'=>'id', 'on'=>'insert'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
             array('class, school, name', 'safe', 'on' => 'search'),
@@ -56,12 +54,13 @@ class Student extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'rClass' => array(self::BELONGS_TO, 'Classes', 'class'),
-            'rMarks' => array(self::HAS_MANY, 'Mark', 'student'),
             'rSchool' => array(self::BELONGS_TO, 'School', 'school'),
+            'rParent' => array(self::BELONGS_TO, 'Account', 'parent'),
+            'rMarks' => array(self::HAS_MANY, 'Mark', 'student', 'order'=>'date ASC', 'on'=>'date!=0'),
+            'rAbsences' => array(self::HAS_MANY, 'Absence', 'student'),
             'rSms' => array(self::HAS_MANY, 'Sms', 'student', 'order' => 'sent, added DESC', 'on' => 'status=' . Sms::STATUS_SENT),
             'rSmses' => array(self::HAS_MANY, 'Sms', 'student', 'order' => 'sent, added DESC'),
-            'rAverages' => array(self::HAS_MANY, 'Averages', 'student', 'order' => 'subject ASC, date ASC'),
-            'rPurtare' => array(self::HAS_ONE, 'Averages', 'student', 'condition' => 'subject=' . Subject::ID_PURTARE)
+            'rChart' => array(self::HAS_MANY, 'Chart', 'student', 'order' => 'subject ASC, date ASC'),
         );
     }
 
@@ -98,40 +97,6 @@ class Student extends CActiveRecord {
         return new CActiveDataProvider(get_class($this), array(
             'criteria' => $criteria,
         ));
-    }
-
-    public function getPurtare() {
-        if ($this->_purtare)
-            return $this->_purtare;
-        $this->_purtare = $this->rPurtare;
-        if (!$this->_purtare) {
-            $pu = new Averages;
-            $pu->student = $this->id;
-            $pu->average = 10;
-            $pu->subject = Subject::ID_PURTARE;
-            $schoolyear = Schoolyear::model()->findByDate();
-            //if (!$schoolyear) return false;
-            $pu->schoolyear = $schoolyear->id;
-            $pu->semester = $schoolyear->getSemesterByDate(time(), $schoolyear->change);
-            $pu->added = time();
-            $pu->date = time();
-            $pu->type = Averages::TYPE_OFFICIAL;
-            $pu->save();
-
-            $this->_purtare = $pu->average;
-        } else
-            $this->_purtare = $this->_purtare->average;
-        return $this->_purtare;
-    }
-
-    public function setPurtare($newpurtare) {
-        $purtare = $this->rPurtare;
-        if ($purtare == null) {
-            $this->getPurtare();
-            $purtare = $this->rPurtare;
-        }
-        $purtare->average = $newpurtare;
-        return $purtare->save();
     }
 
     protected function beforeSave() {

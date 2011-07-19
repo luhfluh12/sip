@@ -61,22 +61,22 @@ class StudentController extends Controller {
     }
 
     public function filterViewStudentStats($c) {
-       if (Yii::app()->user->checkAccess('admin')) {
+        if (Yii::app()->user->checkAccess('admin')) {
             $this->_adminOptions = true;
             $c->run();
             return true;
         } elseif (isset($_GET['id'])) {
             $student = $this->loadModel($_GET['id']);
-            if (Yii::app()->user->checkAccess('formteacher:'.$student->class)) {
+            if (Yii::app()->user->checkAccess('formteacher:' . $student->class)) {
                 $this->_adminOptions = true;
                 $c->run();
                 return true;
-            } elseif (Yii::app()->user->checkAccess('parent:'.$student->id)) {
+            } elseif (Yii::app()->user->checkAccess('parent:' . $student->id)) {
                 $c->run();
                 return true;
             }
         }
-        throw new CHttpException(403,'Acces respins.');
+        throw new CHttpException(403, 'Acces respins.');
         return false;
     }
 
@@ -86,20 +86,49 @@ class StudentController extends Controller {
      */
     public function actionView($id) {
         $this->layout = '//layouts/column1';
-        $student = Student::model()->with('rSchool', 'rClass')->findByPk((int) $id);
+        $student = Student::model()->with('rSchool', 'rClass.rSubjects')->findByPk((int) $id);
         $subjects = $student->rClass->rSubjects;
+        $purtare = Average::getPurtare($student->id);
         $this->render('view', array(
             'student' => $student,
             'subjects' => $subjects,
+            'purtare' => $purtare,
             'adminOptions' => $this->_adminOptions,
         ));
     }
 
     public function actionStats($id) {
         $this->layout = '//layouts/column1';
-        $student = Student::model()->with('rSchool', 'rClass', 'rAverages.rSubject')->findByPk((int) $id);
+        $student = Student::model()->with('rSchool', 'rClass', 'rChart.rSubject')->findByPk((int) $id);
+        
+        // generate the json for the chart
+        /** @todo clean this up */
+        $comma = false;
+        $comma2 = false;
+        $json = '{';
+        $subject = false;
+        foreach ($student->rChart as $point) {
+            if ($point->subject != $subject) {
+                if ($subject) {
+                    //$json .= "]}";
+                }
+                $json .= ( $comma ? "]},\n" : "") . '"m' . $point->subject . "\":{\n" .
+                        "label:\"" . $point->rSubject->name . "\",\n" .
+                        "data:[";
+                if ($comma === false)
+                    $comma = true;
+                $comma2 = false;
+                $subject = $point->subject;
+            }
+            $json .= ( $comma2 ? ',' : '') . "[" . $point->date . "000" . ", " . $point->average . "]";
+            if ($comma2 === false)
+                $comma2 = true;
+        }
+        $json .= ']}}';
+
         $this->render('stats', array(
             'student' => $student,
+            'json' => $json,
         ));
     }
 
@@ -126,27 +155,6 @@ class StudentController extends Controller {
             'student' => $student,
         ));
     }
-
-    /* public function actionManualSmsForm($id)
-      {
-      $id = (int) $id;
-      $model=new Sms('manualSms');
-      $student = Student::model()->with('rParent.rAccount')->findByPk($id);
-      if ($student !== null)
-      if(isset($_POST['Sms']))
-      {
-      $model->attributes=$_POST['Sms'];
-      if($model->validate())
-      {
-      $model->student=$this->id;
-      $model->added = time();
-      $model->status = Sms::STATUS_TOSEND;
-      $model->save();
-      $this->redirect(array('student/sms','id'=>$id,'sent'=>1));
-      }
-      }
-      $this->redirect(array('student/sms','id'=>$id,'sent'=>0));
-      } */
 
     /**
      * Lists all models.
@@ -191,13 +199,13 @@ class StudentController extends Controller {
                     if ($student->save(false)) {
                         $auth = new Authorization;
                         $auth->give($account->id, 'parent', $student->id);
-                        Yii::app()->user->setFlash('addstudent_success','Elevul a fost adăugat cu succes.');
+                        Yii::app()->user->setFlash('addstudent_success', 'Elevul a fost adăugat cu succes.');
                         $this->redirect(array('create', 'class' => $class->id));
                     }
                 }
             } else {
                 $account = new Account;
-                $account->attributes=$_POST['Account'];
+                $account->attributes = $_POST['Account'];
                 $account->validate();
             }
         } else
@@ -216,55 +224,14 @@ class StudentController extends Controller {
      */
     public function actionUpdate($id) {
         $student = $this->loadModel($id);
-        $parent = $student->rParent;
-        $pAccount = Account::model()->find('info=:info AND type=:type', array(':info' => $parent->id, ':type' => Account::TYPE_PARENT));
-        // $sAccount = Account::model()->find('info=:info AND type=:type',
-        //       array(':info'=>$student->id,':type'=>Account::TYPE_STUDENT));
-        $student->setScenario('updatePart');
-        $parent->setScenario('updatePart');
-        $pAccount->setScenario('updatePart');
-        //$sAccount->setScenario('updatePart');
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
-
-        if (isset($_POST['Student'], $_POST['Parents'], /* $_POST['sAccount'], */ $_POST['pAccount'])) {
+        if (isset($_POST['Student'])) {
             $student->attributes = $_POST['Student'];
-            $parent->attributes = $_POST['Parents'];
-            //  $sAccount->attributes=$_POST['sAccount'];
-            $pAccount->attributes = $_POST['pAccount'];
-
-            $valid = $student->validate();
-            $valid = $parent->validate() && $valid;
-            //$valid = $sAccount->validate() && $valid;
-            $valid = $pAccount->validate() && $valid;
-
-            if ($valid) {
-
-                $saved = $parent->save();
-                $pAccount->info = $parent->id;
-                $saved = $pAccount->save() && $saved;
-
-                $student->parent = $parent->id;
-                $saved = $student->save() && $saved;
-
-                //$sAccount->info=$student->id;
-                //$saved=$sAccount->save() && $saved;
-                if (!$saved) {
-                    $parent->delete();
-                    $pAccount->delete();
-                    //  $sAccount->delete();
-                    $student->delete();
-                }
+            if ($student->save()) {
                 $this->redirect(array('view', 'id' => $student->id));
             }
         }
-
         $this->render('update', array(
             'student' => $student,
-            'parent' => $parent,
-            //'sAccount'=>$sAccount,
-            'pAccount' => $pAccount,
-            'classes' => $student->rClass,
         ));
     }
 
@@ -314,4 +281,5 @@ class StudentController extends Controller {
         }
         return $this->_model;
     }
+
 }
