@@ -24,9 +24,9 @@ class WAbsences {
     }
 
     /**
-     * The problem renderd for humans.
+     * Render the problem to be human readable.
      * @param array $stored
-     * @return string The problem, renderd properly. 
+     * @return string The problem, renderd properly.
      */
     public static function render($stored) {
         return 'Copilul dvs. are ' . $stored . ' absențe nemotivate noi.';

@@ -61,7 +61,22 @@ class Warning extends CActiveRecord {
         foreach ($drafts as $draft) {
             $lastSent = $command->queryScalar(array(':st'=>$draft->student));
             if ($lastSent <= $time - self::QUIET_TIME) {
-                
+                // recheck all the stored problems
+                foreach ($draft->json as $w) {
+                    $new = $w::check($draft->student, $lastSent);
+                    if ($new) {
+                        $draft->json[$w] = $new;
+                    } else {
+                        unset($draft->json[$w]);
+                    }
+                }
+                // if there are still problems, render and send
+                if (!empty($draft->json)) {
+                    $draft->sent=$time;
+                    // @todo render sms here. after writing the sms api.
+                }
+                // save the changes
+                $draft->save();
             }
         }
     }

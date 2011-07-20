@@ -139,6 +139,10 @@ class Absence extends Schoolitem {
         if ($abs === 0)
             return false;
         $returnArray['added'] = $abs;
+        
+        // make a check
+        Warning::verify('addAbsence', $student->id);
+        
         return $returnArray;
     }
 
