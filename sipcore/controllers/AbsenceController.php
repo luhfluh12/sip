@@ -126,10 +126,7 @@ class AbsenceController extends Controller {
      */
     public function actionSaveInterval() {
         if (Yii::app()->request->isPostRequest && isset($_POST['start'], $_POST['end'], $_POST['student'])) {
-            $student = Student::model()->findByPk((int) $_POST['student']);
-            if ($student === null)
-                CHttpException(403, 'Elevul nu există în baza de date.');
-            echo json_encode(Absence::model()->saveInterval($_POST['start'], $_POST['end'], $student));
+            echo json_encode(Absence::model()->saveInterval($_POST['start'], $_POST['end'], (int) $_POST['student']));
         }
         else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');

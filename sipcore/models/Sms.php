@@ -27,8 +27,6 @@ class Sms extends CActiveRecord
         const ADD_ABSENCES_WARNING = 3; // 8 sau mai multe absente nemotivate
         const ADD_ABSENCES_AUTHORIZED = 4; // motivare de interval de absențe
         
-        const SMS_DRAFT_TIME=259200; // 3 days
-        const SMS_QUIET_TIME=604800; // 7 days
         
         const MAX_ABSENCES_ALLOWED=8; // 8 absente pt a trimite SMS
          /**

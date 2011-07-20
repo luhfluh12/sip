@@ -74,16 +74,30 @@ class Absence extends Schoolitem {
 
     /**
      *
-     * @param start $start used in strtotime()
-     * @param name $end used in strtotime(). If empty just one day is added
-     * @param CActiveRecord $student Student model
-     * @return array the added absences and a special key ['added']=(int) no of absences added
+     * @param integer $start used in strtotime()
+     * @param integer $end used in strtotime(). If empty just one day is added
+     * @param integer $student Student model
+     * @return array the added absences and a special key: ['added']=(int) no of absences added
      * @return false if it fails
      */
     public static function saveInterval($start, $end, $student) {
         $start = strtotime($start);
+        if ($start === 0)
+            return false;
         $added = time();
         $end = empty($end) ? $start : strtotime($end);
+        if ($end === 0)
+            return false;
+
+        $schoolyear = Schoolyear::thisYear($added);
+        $semester = Schoolyear::thisSemester($added);
+        if (Schoolyear::thisYear($start) !== $schoolyear)
+            return false;
+
+        $student = Student::model()->findByPk($student);
+        if ($student === null)
+            return false;
+
         $schedule = Schedule::getClassSchedule($student->class, false);
         $abs = 0;
         $day = 60 * 60 * 24;
@@ -92,28 +106,28 @@ class Absence extends Schoolitem {
                 (date, subject, student, added, authorized) VALUES
                 (:date, :subject, :student, :added, :authorized)";
         $command = Yii::app()->db->createCommand($query);
-        $schoolyear = false;
+       
         while ($start <= $end) {
+            if (Schoolyear::thisSemester($start) !== $semester)
+                break;
             $weekday = date('w', $start);
-            $_year = Schoolyear::yearByMonth(date('n', $start), date('Y', $start));
-            if ($schoolyear !== $_year) {
-                $schoolyear = $_year;
-                $semester = Schoolyear::model()->getSemesterByDate($start);
-            }
             if (isset($schedule[$weekday]) && is_array($schedule[$weekday])) {
                 foreach ($schedule[$weekday] as $subject) {
-                    $command->execute(array(
-                        ':date' => $start,
-                        ':subject' => $subject,
-                        ':authorized' => self::STATUS_UNAUTH,
-                        ':added' => $added,
-                        ':student' => $student->id,
-                    ));
-                    if (isset($returnArray[$subject]) && is_array($returnArray[$subject]))
-                        $returnArray[$subject] = array_merge($returnArray[$subject], array($abs => date('d F Y', $start)));
-                    else
-                        $returnArray[$subject] = array($abs => date('d F Y', $start));
-                    $abs++;
+                    $toAdd = self::howMuch($student->id, $subject, $start);
+                    for ($i=1;$i<=$toAdd;$i++) {
+                        $command->execute(array(
+                            ':date' => $start,
+                            ':subject' => $subject,
+                            ':authorized' => self::STATUS_UNAUTH,
+                            ':added' => $added,
+                            ':student' => $student->id,
+                        ));
+                        if (isset($returnArray[$subject]) && is_array($returnArray[$subject]))
+                            $returnArray[$subject] = array_merge($returnArray[$subject], array(Yii::app()->db->getLastInsertID() => date('d F Y', $start)));
+                        else
+                            $returnArray[$subject] = array($abs => date('d F Y', $start));
+                        $abs++;
+                    }
                 }
             }
             // next day
@@ -137,11 +151,11 @@ class Absence extends Schoolitem {
         $total = Schedule::hasStudentSubject($subject, $student, $date);
         if ($total === 0)
             return 0;
-        $yet = (int) self::model()->countByAttributes(array('student'=>$student,'subject'=>$subject,'date'=>$date));
+        $yet = (int) self::model()->countByAttributes(array('student' => $student, 'subject' => $subject, 'date' => $date));
         if ($total <= $yet)
             return 0;
         else
-            return $total-$yet;
+            return $total - $yet;
     }
 
     protected function beforeSave() {

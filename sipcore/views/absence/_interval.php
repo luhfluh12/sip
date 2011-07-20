@@ -65,7 +65,7 @@
     ));?>
     </p>
 
-    <?php echo CHtml::ajaxSubmitButton('adaugă absențe', array('absences/saveInterval'),array(
+    <?php echo CHtml::ajaxSubmitButton('adaugă absențe', array('absence/saveInterval'),array(
        'success'=>"js:function(data){
             var obj = $.parseJSON(data);
             updateAbsences(obj);
