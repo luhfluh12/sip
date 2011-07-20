@@ -137,15 +137,11 @@ class Absence extends Schoolitem {
         $total = Schedule::hasStudentSubject($subject, $student, $date);
         if ($total === 0)
             return 0;
-        $yet = self::model()->count('student=:student AND subject=:subject AND date=:date', array(
-                    ':student' => $subject,
-                    ':subject' => $subject,
-                    ':date' => $date,
-                ));
-        if ($yet == $total)
+        $yet = (int) self::model()->countByAttributes(array('student'=>$student,'subject'=>$subject,'date'=>$date));
+        if ($total <= $yet)
             return 0;
         else
-            return $total - $yet;
+            return $total-$yet;
     }
 
     protected function beforeSave() {

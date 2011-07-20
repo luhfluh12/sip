@@ -3,7 +3,7 @@
 <?php else: ?>
     <?php if ($adminOptions): ?>
         <div class="marksmenu">
-            <?php $this->renderPartial('//absences/_interval', array('student' => $student, 'purtare' => $purtare)); ?>
+            <?php $this->renderPartial('//absence/_interval', array('student' => $student, 'purtare' => $purtare)); ?>
         </div>
     <?php endif; ?>
     <?php foreach ($subjects as $subject): ?>
@@ -19,7 +19,7 @@
                             'subject' => $subject->id, 'student' => $student->id, 'adminOptions' => $adminOptions)); ?>
                     </td>
                     <td style="vertical-align: top;width:43%;">
-                        <?php $this->renderPartial('//absences/index', array('subject' => $subject, 'student' => $student, 'adminOptions' => $adminOptions)); ?>
+                        <?php $this->renderPartial('//absence/index', array('subject' => $subject, 'student' => $student, 'adminOptions' => $adminOptions)); ?>
                     </td>
                 </tr>
             </table>
