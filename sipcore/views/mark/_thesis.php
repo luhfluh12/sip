@@ -31,12 +31,12 @@
         <?php echo $form->hiddenField($model, 'student', array('value' => $student)); ?>
         <?php echo $form->hiddenField($model, 'subject', array('value' => $subject)); ?>
         <?php
-        $options = array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10);
-        if (!$model -> isNewRecord)
+        $options = array(10 => 10, 9 => 9, 8 => 8, 7 => 7, 6 => 6, 5 => 5, 4 => 4, 3 => 3, 2 => 2, 1 => 1);
+        if (!$model->isNewRecord)
             $options[0] = 'șterge';
         ?>
         <?php echo $form->dropDownList($model, 'mark', $options, array('class' => 'chosemark', 'id' => 'subject' . $subject . '_thesis_selectbox')); ?>
-        
+
         <?php
         echo CHtml::ajaxSubmitButton('salvează', array('mark/thesis'), array(
             'success' => "js:function(data, txtStatus){
@@ -55,7 +55,7 @@
                $('#thesis_error_" . $subject . "').html('A apărut o eroare.');
                $('#thesis_error_" . $subject . "').slideDown('fast');
            }",
-        ), array('style'=>'float:right;'));
+                ), array('style' => 'float:right;'));
         ?>
 
         <?php $this->endWidget(); ?>

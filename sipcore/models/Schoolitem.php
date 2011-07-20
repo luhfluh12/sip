@@ -17,7 +17,7 @@ class Schoolitem extends CActiveRecord {
     }
 
     /**
-     *
+     * Checks if the given date is in the current semester and the current schoolyaer
      * @param integer $date
      * @return boolean Whether the date is in the current semester 
      */
