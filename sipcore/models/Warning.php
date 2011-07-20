@@ -54,14 +54,28 @@ class Warning extends CActiveRecord {
         return isset($warnings[$event]) ? $warnings[$event] : array();
     }
 
+    public static function checkDrafts() {
+        $time = time();
+        $command = Yii::app()->db->createCommand('SELECT sent FROM `warning` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
+        $drafts = self::model()->find('sent=0 AND added<=:a',array(':a'=>$time-self::DRAFT_TIME));
+        foreach ($drafts as $draft) {
+            $lastSent = $command->queryScalar(array(':st'=>$draft->student));
+            if ($lastSent <= $time - self::QUIET_TIME) {
+                
+            }
+        }
+    }
+    
     public static function verify($event, $student) {
+        $warnings = self::getWarnings($event);
+        if (empty($warnings))
+            return false;        
         $command = Yii::app()->db->createCommand("SELECT sent FROM warnings WHERE sent!=0 AND student=:st ORDER BY sent DESC LIMIT 1");
         $timelimit = (int) $command->queryScalar(array(':st' => $student));
         $draft = self::model()->find(array(
                     'condition' => 'sent=0 AND student=:student',
                     'params' => array(':student' => $student)
                 ));
-        $warnings = self::getWarnings($event);
         if ($draft !== null) {
             $save = false;
             foreach ($warnings as $warning) {

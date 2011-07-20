@@ -73,7 +73,7 @@ class Absence extends Schoolitem {
     }
 
     /**
-     *
+     * Adds an interval absences to the specified student, regarding to the schedule.
      * @param integer $start used in strtotime()
      * @param integer $end used in strtotime(). If empty just one day is added
      * @param integer $student Student model
@@ -107,6 +107,9 @@ class Absence extends Schoolitem {
                 (:date, :subject, :student, :added, :authorized)";
         $command = Yii::app()->db->createCommand($query);
        
+        $autoincrement = Yii::app()->db->createCommand("SHOW TABLE STATUS LIKE 'absences'")->queryRow(true);
+        $autoincrement=(int) $autoincrement['Auto_increment'];
+        var_dump($autoincrement);
         while ($start <= $end) {
             if (Schoolyear::thisSemester($start) !== $semester)
                 break;
@@ -122,11 +125,13 @@ class Absence extends Schoolitem {
                             ':added' => $added,
                             ':student' => $student->id,
                         ));
+                        echo "autoincrement acum este ".$autoincrement."\n\n";
                         if (isset($returnArray[$subject]) && is_array($returnArray[$subject]))
-                            $returnArray[$subject] = array_merge($returnArray[$subject], array(Yii::app()->db->getLastInsertID() => date('d F Y', $start)));
+                            $returnArray[$subject] = array_merge($returnArray[$subject], array($autoincrement => date('d F Y', $start)));
                         else
-                            $returnArray[$subject] = array($abs => date('d F Y', $start));
+                            $returnArray[$subject] = array($autoincrement => date('d F Y', $start));
                         $abs++;
+                        $autoincrement++;
                     }
                 }
             }
@@ -136,6 +141,7 @@ class Absence extends Schoolitem {
         if ($abs === 0)
             return false;
         $returnArray['added'] = $abs;
+        var_dump($returnArray);
         return $returnArray;
     }
 
