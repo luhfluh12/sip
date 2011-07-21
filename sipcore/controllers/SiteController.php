@@ -160,11 +160,9 @@ class SiteController extends Controller
                         $model->status=Sms::STATUS_SENT;
                         $model->sent=time();
                         $model->charge=$_POST['charge'];
-                        $model->from=$_POST['from'];
                     } else {
                         $model->status=Sms::STATUS_ERROR;
                         $model->charge=$_POST['charge'];
-                        $model->from=$_POST['from'];
                     }
                     $model->save();
                 }

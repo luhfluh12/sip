@@ -2,7 +2,7 @@
 
 class SendCommand extends CConsoleCommand {
     public function actionIndex () {
-        echo "SIPonline SMS sending CronJob: ",SMS::sendCron()," sent.";
+        echo '[',date('j F Y H:i:s'),'] SIP SMS sending CronJob: ',Sms::sendCron()," sent.\n";
     }
 }
 

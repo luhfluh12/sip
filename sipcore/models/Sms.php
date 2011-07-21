@@ -73,7 +73,7 @@ class Sms extends CActiveRecord {
             'condition'=>'`hour1`<=:now AND :now<=(`hour2`-1) AND `status`=:st',
             'params'=>array(
                 ':now'=>$now,
-                ':status'=>self::STATUS_QUEUE,
+                ':st'=>self::STATUS_QUEUE,
             ),
         ));
         $i=0;
@@ -119,11 +119,10 @@ class Sms extends CActiveRecord {
 
         //sending
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.clickatell.com/http/sendmsg");
+        curl_setopt($ch, CURLOPT_URL, "http://api.clickatell.com/http/sendmsg");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_PORT, 443);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_POST, 7);
         curl_setopt($ch, CURLOPT_POSTFIELDS, 'api_id=3294837&' .
                 'user=vlad.velici&' .
@@ -134,7 +133,7 @@ class Sms extends CActiveRecord {
         curl_setopt($ch, CURLOPT_CAINFO, Yii::app()->basePath . 'sms_ssl/www.clickatell.com');
         $response = curl_exec($ch);
         curl_close($ch);
-        var_dump($response);
+
         if ($response !== false)
             $this->status = self::STATUS_SENDING;
         else
