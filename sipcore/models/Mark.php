@@ -204,15 +204,15 @@ class Mark extends Schoolitem {
     }
 
     /**
-     * Calculates the averaget the student has.
+     * Calculates the average mark.
      * If $timelimit is given, the average is calculated at that tisme.
      * @param integer $student
      * @param integer $subject
      * @param integer $timelimit
      * @return float The average 
      */
-    public function getAverageStudentSubject($student, $subject, $timelimit=false) {
-        $query = "SELECT AVG(mark) AS avg FROM " . $this->tableName() . "
+    public static function getAverageStudentSubject($student, $subject, $timelimit=false) {
+        $query = "SELECT AVG(mark) AS avg FROM marks
                 WHERE student=:student
                 AND subject=:subject";
         if ($timelimit !== false)

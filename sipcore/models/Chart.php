@@ -108,7 +108,7 @@ class Chart extends CActiveRecord {
     }
 
     public function updateAvg() {
-        $this->average = Mark::model()->getAverageStudentSubject($this->student, $this->subject, $this->date);
+        $this->average = Mark::getAverageStudentSubject($this->student, $this->subject, $this->date);
     }
 
     protected function afterSave() {

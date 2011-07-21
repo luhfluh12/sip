@@ -54,17 +54,23 @@ class Sms extends CActiveRecord {
             array('account', 'exist', 'className' => 'Account', 'attributeName' => 'id', 'allowEmpty' => false, 'on' => 'manualSms')
         );
     }
-
-    public function queue() {
+    /**
+     * Adds the current message in the sending queue.
+     * @param boolean $tryToSend Whether to try sending the messages now (may slow down the process)
+     * @return boolean Whether the action succeeded 
+     */
+    public function queue($tryToSend=true) {
         $now = date('G');
         $this->status = self::STATUS_QUEUE;
-        // check if the sms should be send right now
-        if ($this->hour1 >= 0 && $this->hour2 >= 0 && $this->hour1 <= $now && $now <= ($this->hour2-1)) {
-            return $this->send();
-        } elseif ($this->hour1 < 0 && $this->hour2 < 0) {
-            return $this->send();
-        } else
-            return $this->save();
+        if ($tryToSend===true) {
+            // check if the sms should be send right now
+            if ($this->hour1 >= 0 && $this->hour2 >= 0 && $this->hour1 <= $now && $now <= ($this->hour2-1)) {
+                return $this->send();
+            } elseif ($this->hour1 < 0 && $this->hour2 < 0) {
+                return $this->send();
+            }
+        }
+        return $this->save();
     }
 
     public static function sendCron() {

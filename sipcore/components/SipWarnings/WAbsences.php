@@ -14,9 +14,10 @@ class WAbsences {
      * @return mixed Array to be stored or FALSE if it does not apply 
      */
     public static function check($student, $timelimit) {
-        $absences = (int) Absence::model()->count('added>:added AND student=:st', array(
+        $absences = (int) Absence::model()->count('added>:added AND student=:st AND authorized=:auth', array(
                     ':added' => $timelimit,
                     ':st' => $student,
+                    ':auth' => Absence::STATUS_UNAUTH,
                 ));
         if ($absences > self::ABSENCES_ALLOWED)
             return $absences;

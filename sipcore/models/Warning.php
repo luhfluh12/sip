@@ -56,26 +56,34 @@ class Warning extends CActiveRecord {
 
     public static function checkDrafts() {
         $time = time();
-        $command = Yii::app()->db->createCommand('SELECT sent FROM `warning` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
-        $drafts = self::model()->find('sent=0 AND added<=:a',array(':a'=>$time-self::DRAFT_TIME));
+        $command = Yii::app()->db->createCommand('SELECT sent FROM `warnings` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
+        $drafts = self::model()->findAll('sent=0 AND added<=:a',array(':a'=>$time-self::DRAFT_TIME));
         foreach ($drafts as $draft) {
             $lastSent = $command->queryScalar(array(':st'=>$draft->student));
             if ($lastSent <= $time - self::QUIET_TIME) {
                 // recheck all the stored problems
-                foreach ($draft->json as $w) {
+                $newproblems = array();
+                foreach ($draft->json as $w => $values) {
                     $new = $w::check($draft->student, $lastSent);
                     if ($new) {
-                        $draft->json[$w] = $new;
-                    } else {
-                        unset($draft->json[$w]);
+                        $newproblems[$w] = $new;
                     }
                 }
                 // if there are still problems, render and send
-                if (!empty($draft->json)) {
+                if (!empty($newproblems)) {
                     $draft->sent=$time;
-                    // @todo render sms here. after writing the sms api.
+                    $sms = new Sms;
+                    $sms->account = $draft->rStudent->parent;
+                    $sms->message = '';
+                    foreach ($newproblems as $w => $stored) {
+                        $sms->message .= $w::render($stored);
+                    }
+                    $sms->hour1 = $draft->rStudent->rParent->sms_hour1;
+                    $sms->hour2 = $draft->rStudent->rParent->sms_hour2;
+                    $sms->queue(false);
                 }
                 // save the changes
+                $draft->json=$newproblems;
                 $draft->save();
             }
         }
