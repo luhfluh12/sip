@@ -58,8 +58,6 @@ class Student extends CActiveRecord {
             'rParent' => array(self::BELONGS_TO, 'Account', 'parent'),
             'rMarks' => array(self::HAS_MANY, 'Mark', 'student', 'order'=>'date ASC', 'on'=>'date!=0'),
             'rAbsences' => array(self::HAS_MANY, 'Absence', 'student'),
-            'rSms' => array(self::HAS_MANY, 'Sms', 'student', 'order' => 'sent, added DESC', 'on' => 'status=' . Sms::STATUS_SENT),
-            'rSmses' => array(self::HAS_MANY, 'Sms', 'student', 'order' => 'sent, added DESC'),
             'rChart' => array(self::HAS_MANY, 'Chart', 'student', 'order' => 'subject ASC, date ASC'),
         );
     }

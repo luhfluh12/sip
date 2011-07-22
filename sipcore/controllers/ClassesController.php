@@ -116,7 +116,7 @@ class ClassesController extends Controller {
         if (isset($_POST['Classes'])) {
             $class->attributes = $_POST['Classes'];
             if ($class->save()) {
-                Yii::app()->user->setFlash('ClassesUpdate','Clasa a fost actualizată cu succes.');
+                Yii::app()->user->setFlash('ClassesUpdate', 'Clasa a fost actualizată cu succes.');
                 $this->redirect(array('view', 'id' => $class->id));
             }
         }
@@ -128,11 +128,11 @@ class ClassesController extends Controller {
 
     public function actionUpdate($id) {
         $class = $this->loadModel($id);
-        
+
         if (isset($_POST['Classes'])) {
             $class->attributes = $_POST['Classes'];
             if ($class->save()) {
-                Yii::app()->user->setFlash('ClassesUpdate','Clasa a fost actualizată cu succes.');
+                Yii::app()->user->setFlash('ClassesUpdate', 'Clasa a fost actualizată cu succes.');
                 $this->redirect(array('view', 'id' => $class->id));
             }
         }
@@ -178,39 +178,48 @@ class ClassesController extends Controller {
 
     public function actionStatistics($id) {
         $id = (int) $id;
-        if (isset($_GET['recalculate']))
-            $recalculate = true;
-        else
-            $recalculate = false;
+        $year = Schoolyear::thisYear(time());
+        $statistics1 = Statistics::getStatistics($id, $year, 1);
+        $statistics2 = Statistics::getStatistics($id, $year, 2);
+        echo "<h1>Semestrul 1</h1>";
 
-        $statistics = Statistics::model()->getStatistics($id, $recalculate);
-        if ($recalculate)
-            $this->redirect(array('classes/view', 'id' => $id));
-        $this->renderPartial('tab_statistics', array('statistics' => $statistics, 'classId' => $id));
+        if (!empty($statistics1)) {
+            foreach ($statistics1 as $key => $stored) {
+                $this->renderPartial('//statistics/' . $key, array('stored' => $stored));
+            }
+        } else
+            echo "<div>Rapoartele pe semestrul 1 nu sunt disponibile.</div>";
+        if (!empty($statistics2)) {
+            echo "<h1>Semestrul 2</h1>";
+            foreach ($statistics2 as $key => $stored) {
+                $this->renderPartial('//statistics/' . $key, array('stored' => $stored));
+            }
+        } else
+            echo "<div>Rapoartele pe semestrul 2 nu sunt disponibile.</div>";
+
         Yii::app()->end();
     }
 
     public function actionSms($id) {
-        $model = new Sms('manualSms');
-        if (isset($_POST['Sms'])) {
+        if (isset($_POST['Sms']['message'])) {
             $id = (int) $id;
-            $class = Classes::model()->with('rStudent')->findByPk($id);
-            $saved = 0;
-            foreach ($class->rStudent as $student) {
-
-                $model = new Sms('manualSms');
-                $model->attributes = $_POST['Sms'];
-                if ($model->validate()) {
-                    $model->student = $student->id;
-                    $model->added = time();
-                    $model->status = Sms::STATUS_TOSEND;
-                    if ($model->save())
-                        $saved++;
+            $class = Classes::model()->with('rStudents.rParent')->findByPk($id);
+            $sentTo = array();
+            foreach ($class->rStudents as $student) {
+                if (!in_array($student->parent, $sentTo)) {
+                    $sms = new Sms('manualSms');
+                    $sms->message = $_POST['Sms']['message'];
+                    $sms->account = $student->parent;
+                    $sms->hour1 = $student->rParent->sms_hour1;
+                    $sms->hour2 = $student->rParent->sms_hour2;
+                    $sms->queue(false);
+                    $sentTo[]=$student->parent;
                 }
             }
-            $this->redirect(array('classes/view', 'id' => $id, 'saved' => $saved));
+            Yii::app()->user->setFlash('class_sms_queued', 'Mesajul SMS va fi trimis tuturor părinților între orele alese de aceștia.');
+            $this->redirect(array('classes/view', 'id' => $id));
         }
-        $this->renderPartial('//sms/_form', array('model' => $model));
+        $this->renderPartial('_smsform');
     }
 
     /**

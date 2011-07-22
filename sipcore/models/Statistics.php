@@ -10,142 +10,104 @@
  * @property integer $year
  * @property string $key
  * @property integer $value
- *
- * The followings are the available model relations:
  * @property Classes $rClass
  */
-class Statistics extends StatisticsCalc
-{
-    
-        const TYPE_NORMAL=0;
-        const TYPE_JSON = 1;
-	/**
-	 * Returns the static model of the specified AR class.
-	 * @return Statistics the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
+class Statistics extends CActiveRecord {
 
-	/**
-	 * @return string the associated database table name
-	 */
-	public function tableName()
-	{
-		return 'statistics';
-	}
+    /**
+     * Returns the static model of the specified AR class.
+     * @return Statistics the static model class
+     */
+    public static function model($className=__CLASS__) {
+        return parent::model($className);
+    }
 
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
-		return array(
-			'rClass' => array(self::BELONGS_TO, 'Classes', 'class'),
-		);
-	}
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName() {
+        return 'statistics';
+    }
 
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'id' => 'ID',
-			'class' => 'Class',
-			'semester' => 'Semester',
-			'year' => 'Year',
-			'key' => 'Key',
-			'value' => 'Value',
-		);
-	}
+    public function rules() {
+        return array(
+            array('class','exist','className'=>'Classes', 'attributeName'=>'id'),
+        );
+    }
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
 
-		$criteria=new CDbCriteria;
+    /**
+     * @return array relational rules.
+     */
+    public function relations() {
+        // NOTE: you may need to adjust the relation name and the related
+        // class name for the relations automatically generated below.
+        return array(
+            'rClass' => array(self::BELONGS_TO, 'Classes', 'class'),
+        );
+    }
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('class',$this->class);
-		$criteria->compare('semester',$this->semester);
-		$criteria->compare('year',$this->year);
-		$criteria->compare('key',$this->key,true);
-		$criteria->compare('value',$this->value);
+    /**
+     * @return array customized attribute labels (name=>label)
+     */
+    public function attributeLabels() {
+        return array(
+            'id' => 'ID',
+            'class' => 'Class',
+            'semester' => 'Semester',
+            'year' => 'Year',
+            'key' => 'Key',
+            'value' => 'Value',
+        );
+    }
 
-		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
-		));
-	}
-        
-        public function getStatisticRules () {
-            return array(
-                'totalAbsences'=>array('text'=>'Număr total de absențe','type'=>self::TYPE_NORMAL),
-                'totalAuthAbsences'=>array('text'=>'Număr total de absențe motivate','type'=>self::TYPE_NORMAL),
-                'totalUnauthAbsences'=>array('text'=>'Număr total de absențe','type'=>self::TYPE_NORMAL),
-            );
-        }
-        
-        public function getStatistics($class,$recalculate=false,$schoolyear=false,$semester=false) {
-            $rules = $this->getStatisticRules();
-            $statistics = array();
-            foreach ($rules as $stat => $info) {
-                $statistics[$stat] = array(
-                    'value'=>$this->getStatistic($class, $stat, $recalculate, $schoolyear, $semester),
-                    'text'=>($info['type'] == self::TYPE_NORMAL ? $info['text'] : json_decode($info['text'])),
-                    'type'=>$info['type'],
-                );
-            }
-            return $statistics;
-        }
-        
-        public function getStatistic($class, $statistic, $recalculate=false, $schoolyear=false, $semester=false) {
-            $rules = $this->getStatisticRules();
-            if (!isset($rules[$statistic]))
-                return false;
-            if ($schoolyear===false) {
-                $schoolyear_model = Schoolyear::model()->findByDate();
-                $semester = Schoolyear::model()->getSemesterByDate(time(),$schoolyear_model->change);
-                $schoolyear=$schoolyear_model->id;
-            }
-            if ($semester===false) {
-                $semester = Schoolyear::model()->getSemesterByDate(time());
-            }
+    public static function statisticRules() {
+        return array(
+            'SAbsences',
+        );
+    }
+    /**
+     *
+     * @param type $class
+     * @param type $year
+     * @param type $semester
+     * @return type 
+     */
+    public static function getStatistics($class, $year, $semester) {
+        $rules = self::statisticRules();
+        $stats = array();
+        foreach ($rules as $rule) {
+            $statistic = self::model()->findByAttributes(array('class' => $class, 'year' => $year, 'semester' => $semester, 'key' => $rule));
+            $thisYear = Schoolyear::thisYear(time());
+            $thisSemester = Schoolyear::thisSemester(time());
+            if ($statistic === null && ($thisYear>$year || ($thisYear==$year && $thisSemester>$semester) || time() > Schoolyear::model()->findByPk($year)->end)) {
+                $statistic = new Statistics;
+                $statistic->class = $class;
+                $statistic->year = $year;
+                $statistic->semester = $semester;
+                $statistic->key = $rule;
+                $statistic->value = $rule::calculate($class, $year, $semester);
+                $statistic->save();
+                $stats[$rule]=  json_decode($statistic->value, true);
+            } else
+                $stats[$rule]=$statistic->value;
             
-            $stat=$this->findByAttributes(array(
-                'class'=>$class,
-                'year'=>$schoolyear,
-                'semester'=>$semester,
-                'key'=>$statistic,
-            ));
             
-            if ($recalculate && $stat!==null)
-                $stat = $this->calculateStatistic($class,$statistic,$schoolyear,$semester,$stat);
-            elseif ($stat===null)
-                $stat = $this->calculateStatistic($class, $statistic, $schoolyear, $semester);
-
-            return $stat->value;
         }
-        protected function calculateStatistic($class, $statistic, $schoolyear, $semester, $stat=false) {
-            $rules = $this->getStatisticRules();
-            $newValue = $this->calculate($statistic,$class,$schoolyear,$semester);
-            if ($stat===false)
-                $stat = new Statistics;
-            $stat->value = $newValue;
-            $stat->key=$statistic;
-            $stat->class=$class;
-            $stat->semester=$semester;
-            $stat->year=$schoolyear;
-            if ($stat->save())
-                return $stat;
+        return $stats;
+    }
+
+    protected function afterFind() {
+        parent::afterFind();
+        $this->value = json_decode($this->value, true);
+    }
+
+    protected function beforeSave() {
+        if (parent::beforeSave()) {
+            $this->value = json_encode($this->value);
+            return true;
+        } else
             return false;
-        }
+    }
+
 }

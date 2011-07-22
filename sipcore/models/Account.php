@@ -88,6 +88,7 @@ class Account extends CActiveRecord {
             'rStudent' => array(self::HAS_MANY, 'Students', 'parent'),
             'rStudentCount' => array(self::STAT, 'Students', 'parent'),
             'rClass' => array(self::HAS_ONE, 'Classes', 'teacher'),
+            'rSmses' => array(self::HAS_MANY, 'Sms', 'account', 'order' => 'status ASC, sent DESC', 'condition'=>'status IN ('.Sms::STATUS_QUEUE.','.Sms::STATUS_SENDING.','.Sms::STATUS_SENT.')'),
         );
     }
 

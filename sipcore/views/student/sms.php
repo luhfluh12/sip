@@ -21,7 +21,7 @@ $this->widget('system.web.widgets.CTabView',array(
         'tab3'=>array(
             'title'=>'SMS-uri',
             'view'=>'tab_sms',
-            'data'=>array('smses'=>$student->rSmses),
+            'data'=>array('smses'=>$student->rParent->rSmses),
         ),
         'tab4'=>array(
             'title'=>'Informații',

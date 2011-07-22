@@ -100,7 +100,7 @@ class StudentController extends Controller {
     public function actionStats($id) {
         $this->layout = '//layouts/column1';
         $student = Student::model()->with('rSchool', 'rClass', 'rChart.rSubject')->findByPk((int) $id);
-        
+
         // generate the json for the chart
         /** @todo clean this up */
         $comma = false;
@@ -135,22 +135,20 @@ class StudentController extends Controller {
     public function actionSms($id) {
         $id = (int) $id;
         $this->layout = '//layouts/column1';
-        $student = Student::model()->with('rSchool', 'rClass', 'rSmses')->findByPk($id);
+        $student = Student::model()->with('rParent.rSmses')->findByPk($id);
         if ($student === null)
             throw new CHttpException(404, 'Elevul nu există');
-        if (isset($_POST['Sms'])) {
-            $model = new Sms('manualSms');
-            $model->attributes = $_POST['Sms'];
-            if ($model->validate()) {
-                $model->student = $id;
-                $model->added = time();
-                $model->status = Sms::STATUS_TOSEND;
-                $model->save();
-                $this->redirect(array('student/sms', 'id' => $id, 'sent' => 1));
-            }
+        if (isset($_POST['Sms']['message'])) {
+            $sms = new Sms('manualSms');
+            $sms->message = $_POST['Sms']['message'];
+            $sms->account = $student->parent;
+            $sms->hour1 = $student->rParent->sms_hour1;
+            $sms->hour2 = $student->rParent->sms_hour2;
+            $sms->queue(true);
+            Yii::app()->user->setFlash('student_sms_queued', 'Mesajul SMS va fi trimis în următoarele 24 de ore.');
+            $this->redirect(array('student/sms', 'id' => $id));
         }
-        /* var_dump($student->rSmses);
-          var_dump($student); */
+
         $this->render('sms', array(
             'student' => $student,
         ));

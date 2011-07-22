@@ -93,10 +93,20 @@ class Schoolyear extends CActiveRecord {
             return 1;
         }
         $model = self::model()->findByPk(self::thisYear($time));
-        if ($model===null) return false;
+        if ($model === null)
+            return false;
         if ($time >= $model->change)
             return 2;
         return 1;
+    }
+
+    public static function isYearActive($year=false) {
+        if ($year === false)
+            $year = Schoolyear::thisYear(time());
+        $model = self::model()->findByPk($year);
+        if ($model === null)
+            return false;
+        return $model->end < time();
     }
 
 }

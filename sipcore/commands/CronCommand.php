@@ -20,42 +20,49 @@ class CronCommand extends CConsoleCommand {
             $insertAverage = Yii::app()->db->createCommand("INSERT INTO `averages` (student, subject, sem1, year) VALUES (:student, :subject, :sem, $schoolyear)");
         } else {
             $insertAverage = Yii::app()->db->createCommand("INSERT INTO `averages` (student, subject, sem2, final, year) VALUES (:student, :subject, :sem, :sem, $schoolyear)");
-            $updateAverage = Yii::app()->db->createCommand("UPDATE `averages` SET sem2=:sem, final=AVG(sem1,sem2) WHERE id=:avgid");
-            $getAverage = Yii::app()->db->createCommand("SELECT id FROM `averages` WHERE student=:student AND schoolyear=$schoolyear AND subject=:subject");
+            $updateAverage = Yii::app()->db->createCommand("UPDATE `averages` SET sem2=:sem, final=(sem1+sem2/2) WHERE id=:avgid");
+            $getAverage = Yii::app()->db->createCommand("SELECT id FROM `averages` WHERE student=:student AND year=$schoolyear AND subject=:subject");
         }
 
+        $classesIds = array();
         foreach ($classes as $class) {
+            $classesIds[] = $class->id;
             $students = $getStudents->queryColumn(array(':class' => $class->id));
             foreach ($students as $student) {
                 foreach ($class->rSubjects as $subject) {
-                    if ($sem === 1) {
-                        $insertAverage->execute(array(':student' => $student, ':subject' => $subject->id, ':sem' => Mark::getAverageStudentSubject($student, $subject->id)));
-                    } else {
-                        // search for the existing average
-                        $avgid = $getAverage->queryScalar(array(':student' => $student, ':subject' => $subject));
-                        if ($avgid) {
-                            // update if available
-                            $updateAverage->execute(array(':sem' => Mark::getAverageStudentSubject($student, $subject), ':avgid' => $avgid));
+                    $newAvg = Mark::getAverageStudentSubject($student, $subject->id);
+                    if ($newAvg) {
+                        if ($sem === 1) {
+                            $insertAverage->execute(array(':student' => $student, ':subject' => $subject->id, ':sem' => $newAvg));
                         } else {
-                            $insertAverage->execute(array(':student' => $student, ':subject' => $subject->id, ':sem' => Mark::getAverageStudentSubject($student, $subject->id)));
+                            // search for the existing average
+                            $avgid = $getAverage->queryScalar(array(':student' => $student, ':subject' => $subject->id));
+                            if ($avgid) {
+                                // update if available
+                                $updateAverage->execute(array(':sem' => $newAvg, ':avgid' => $avgid));
+                            } else {
+                                $insertAverage->execute(array(':student' => $student, ':subject' => $subject->id, ':sem' => $newAvg));
+                            }
                         }
                     }
                 }
-                
+
                 $saveAbsenceHistory->execute(array(
-                    ':auth'=>Absence::model()->countByAttributes(array(
-                            'student' => $student,
-                            'authorized' => Absence::STATUS_AUTH,
-                        )),
-                    ':unauth'=>Absence::model()->countByAttributes(array(
-                            'student' => $student,
-                            'authorized' => Absence::STATUS_UNAUTH,
-                        )),
-                    ':student'=>$student,
+                    ':auth' => Absence::model()->countByAttributes(array(
+                        'student' => $student,
+                        'authorized' => Absence::STATUS_AUTH,
+                    )),
+                    ':unauth' => Absence::model()->countByAttributes(array(
+                        'student' => $student,
+                        'authorized' => Absence::STATUS_UNAUTH,
+                    )),
+                    ':student' => $student,
                 ));
             }
         }
-        // delete all remaining marks and absences
+
+        Yii::app()->db->createCommand('TRUNCATE TABLE `absences`');
+        Yii::app()->db->createCommand('TRUNCATE TABLE `marks`');
     }
 
 }
