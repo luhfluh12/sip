@@ -538,3 +538,15 @@ div.search-form
     color:#fff;
     text-decoration: none;
 }
+div.archive {
+    border:1px solid #999;margin:5px;padding:3px;border-radius:3px;
+}
+div.archive div {
+    padding:5px;border-radius:3px;font-weight:bold;
+}
+div.archive div.active {
+    background-color:#eee;
+}
+div.archive div.inactive {
+    background-color:#cfc;
+}

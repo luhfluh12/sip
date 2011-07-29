@@ -10,12 +10,6 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'schoolyear'); ?>
-		<?php echo $form->dropDownList($model,'schoolyear',Schoolyear::getList()); ?>
-		<?php echo $form->error($model,'schoolyear'); ?>
-	</div>
-
-	<div class="row">
 		<?php echo $form->labelEx($model,'start'); ?>
 		<?php $this->renderPartial('//helpers/_picker',array('model'=>$model,'attr'=>'start')); ?>
 		<?php echo $form->error($model,'start'); ?>

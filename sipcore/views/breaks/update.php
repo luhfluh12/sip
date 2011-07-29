@@ -6,13 +6,15 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'List Breaks', 'url'=>array('index')),
-	array('label'=>'Create Breaks', 'url'=>array('create')),
-	array('label'=>'View Breaks', 'url'=>array('view', 'id'=>$model->id)),
-	array('label'=>'Manage Breaks', 'url'=>array('admin')),
+	array('label'=>'Lista de vacanțe', 'url'=>array('index')),
+	array('label'=>'Adaugă vacanță', 'url'=>array('create')),
+	array('label'=>'Administrează', 'url'=>array('admin')),
 );
+
+$this->sip_title = 'Editează vacanța';
 ?>
 
-<h1>Update Breaks <?php echo $model->id; ?></h1>
+
+<h1> <?php echo CHtml::encode($model->name); ?> (<?php echo date('j M Y',$model->start); ?> - <?php echo date('j M Y',$model->end); ?>)</h1>
 
 <?php echo $this->renderPartial('_form', array('model'=>$model)); ?>

@@ -25,6 +25,10 @@ $this->widget('system.web.widgets.CTabView',array(
             'url'=>$this->createUrl('student/sms',array('id'=>$student->id)),
         ),
         'tab4'=>array(
+            'title'=>'Istoric',
+            'url'=>$this->createUrl('student/history',array('id'=>$student->id)),
+        ),
+        'tab5'=>array(
             'title'=>'Informații',
             'url'=>$this->createUrl('student/view',array('id'=>$student->id)).'#tab4',
         ),

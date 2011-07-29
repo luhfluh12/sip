@@ -45,7 +45,7 @@ class AbsenceController extends Controller {
             $studentId = (int) $_POST['Absence']['student'];
 
         if (isset($studentId)) {
-            $student = Student::model()->findByPk((int) $_POST['Mark']['student'], array('select' => 'class'));
+            $student = Student::model()->findByPk((int) $studentId, array('select' => 'class'));
             if ($student !== null && Yii::app()->user->checkAccess('formteacher:' . $student->class) === true) {
                 $c->run();
                 return true;

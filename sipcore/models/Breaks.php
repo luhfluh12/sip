@@ -5,13 +5,10 @@
  *
  * The followings are the available columns in table 'breaks':
  * @property integer $id
- * @property integer $schoolyear
  * @property string $start
  * @property string $end
  * @property string $name
- *
- * The followings are the available model relations:
- * @property Schoolyear $schoolyear0
+ * @property Schoolyear $rSchoolyear
  */
 class Breaks extends CActiveRecord {
 
@@ -37,13 +34,11 @@ class Breaks extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('schoolyear, start, end, name', 'required'),
-            array('schoolyear', 'numerical', 'integerOnly' => true),
-            array('schoolyear', 'exist', 'attributeName' => 'id', 'className' => 'Schoolyear', 'allowEmpty' => false),
             array('name', 'length', 'max' => 30),
+            array('start, end','safe'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, schoolyear, start, end, name', 'safe', 'on' => 'search'),
+            array('id, start, end, name', 'safe', 'on' => 'search'),
         );
     }
 
@@ -77,7 +72,6 @@ class Breaks extends CActiveRecord {
     public function attributeLabels() {
         return array(
             'id' => 'ID',
-            'schoolyear' => 'An școlar',
             'start' => 'Început vacanță',
             'end' => 'Sfârșit vacanță',
             'name' => 'Denumire',
@@ -104,7 +98,6 @@ class Breaks extends CActiveRecord {
         $criteria = new CDbCriteria;
 
         $criteria->compare('id', $this->id);
-        $criteria->compare('schoolyear', $this->schoolyear);
         $criteria->compare('start', $this->start, true);
         $criteria->compare('end', $this->end, true);
         $criteria->compare('name', $this->name, true);

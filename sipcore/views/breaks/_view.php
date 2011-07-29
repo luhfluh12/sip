@@ -1,18 +1,13 @@
 <div class="view">
 
-	<?php echo CHtml::link(CHtml::encode($data->name), array('view', 'id'=>$data->id)); ?>
+	<?php echo CHtml::link(CHtml::encode($data->name), array('update', 'id'=>$data->id), array('class'=>'title')); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('schoolyear')); ?>:</b>
-	<?php echo $data->rSchoolyear->getName(); ?>
+	<b>Anul școlar:</b>
+	<?php echo Schoolyear::thisYearName($data->start); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('start')); ?>:</b>
-	<?php echo date('j M Y',$data->start); ?>
+	<b>Perioada :</b>
+	<?php echo date('j M Y',$data->start); ?> - <?php echo date('j M Y',$data->end); ?>
 	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('end')); ?>:</b>
-	<?php echo date('j M Y',$data->end); ?>
-	<br />
-
 </div>

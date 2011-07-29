@@ -1,15 +1,18 @@
 <?php
 $this->breadcrumbs=array(
-	'Breaks',
+	'Vacanțe',
 );
 
 $this->menu=array(
-	array('label'=>'Create Breaks', 'url'=>array('create')),
-	array('label'=>'Manage Breaks', 'url'=>array('admin')),
+	array('label'=>'Adaugă vacanță', 'url'=>array('create')),
+	array('label'=>'Administrează', 'url'=>array('admin')),
 );
+
+$this->sip_title = "Vacanțe";
+
 ?>
 
-<h1>Breaks</h1>
+<h1>Lista vacanțelor școlare</h1>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,

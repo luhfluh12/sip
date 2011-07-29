@@ -80,6 +80,16 @@ class Schoolyear extends CActiveRecord {
     }
 
     /**
+     * Returns the schoolyear name that the given timestamp belongs to
+     * @example Returns 2011-2012 for the schoolyear with the id 2011
+     * @param integer $time timestamp
+     * @return string The name of the schoolyear
+     */
+    public static function thisYearName($time) {
+        return self::thisYear($time).' - '.(self::thisYear($time)+1);
+    }
+    
+    /**
      * Get the semester that the given timestamp belongs to.
      * The database is queried only if the timestamp is in February
      * @param integer $time The timestamp

@@ -57,9 +57,9 @@ class Warning extends CActiveRecord {
     public static function checkDrafts() {
         $time = time();
         $command = Yii::app()->db->createCommand('SELECT sent FROM `warnings` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
-        $drafts = self::model()->findAll('sent=0 AND added<=:a',array(':a'=>$time-self::DRAFT_TIME));
+        $drafts = self::model()->findAll('sent=0 AND added<=:a', array(':a' => $time - self::DRAFT_TIME));
         foreach ($drafts as $draft) {
-            $lastSent = $command->queryScalar(array(':st'=>$draft->student));
+            $lastSent = $command->queryScalar(array(':st' => $draft->student));
             if ($lastSent <= $time - self::QUIET_TIME) {
                 // recheck all the stored problems
                 $newproblems = array();
@@ -71,7 +71,7 @@ class Warning extends CActiveRecord {
                 }
                 // if there are still problems, render and send
                 if (!empty($newproblems)) {
-                    $draft->sent=$time;
+                    $draft->sent = $time;
                     $sms = new Sms;
                     $sms->account = $draft->rStudent->parent;
                     $sms->message = '';
@@ -83,29 +83,31 @@ class Warning extends CActiveRecord {
                     $sms->queue(false);
                 }
                 // save the changes
-                $draft->json=$newproblems;
+                $draft->json = $newproblems;
                 $draft->save();
             }
         }
     }
-    
+
     public static function verify($event, $student) {
         $warnings = self::getWarnings($event);
         if (empty($warnings))
-            return false;        
+            return false;
         $command = Yii::app()->db->createCommand("SELECT sent FROM warnings WHERE sent!=0 AND student=:st ORDER BY sent DESC LIMIT 1");
         $timelimit = (int) $command->queryScalar(array(':st' => $student));
         $draft = self::model()->find(array(
                     'condition' => 'sent=0 AND student=:student',
-                    'params' => array(':student' => $student)
+                    'params' => array(':student' => $student),
                 ));
         if ($draft !== null) {
             $save = false;
+            if (!is_array($draft->json))
+                $draft->json = array();
             foreach ($warnings as $warning) {
-                if (!isset($this->json[$warning])) {
+                if (!isset($draft->json[$warning])) {
                     $new = $warning::check($student, $timelimit);
                     if ($new !== false) {
-                        $this->json[$warning] = $new;
+                        $draft->json += array($warning=>$new);
                         if ($save === false)
                             $save = true;
                     }
@@ -131,7 +133,7 @@ class Warning extends CActiveRecord {
 
     protected function afterFind() {
         parent::afterFind();
-        $this->json = json_decode($this->json);
+        $this->json = json_decode($this->json, true);
     }
 
     protected function beforeSave() {

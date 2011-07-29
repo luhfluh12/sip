@@ -23,9 +23,14 @@ $this->widget('system.web.widgets.CTabView',array(
             'view'=>'tab_sms',
             'data'=>array('smses'=>$student->rParent->rSmses),
         ),
-        'tab4'=>array(
-            'title'=>'Informații',
-            'url'=>$this->createUrl('student/view',array('id'=>$student->id)).'#tab4',
+        'tab4' => array(
+            'title' => 'Istoric',
+            'url' => $this->createUrl('student/history', array('id' => $student->id)),
+        ),
+        'tab5' => array(
+            'title' => 'Informații',
+            'view' => 'tab_info',
+            'data' => array('student' => $student),
         ),
     ),
     'activeTab'=>'tab3',
