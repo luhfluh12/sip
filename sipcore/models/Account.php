@@ -85,9 +85,9 @@ class Account extends CActiveRecord {
             'rAuthorizations' => array(self::HAS_MANY, 'Authorization', 'account'),
             'rAccountRevisions' => array(self::HAS_MANY, 'AccountRevision', 'account'),
             'rSecurityQuestion' => array(self::BELONGS_TO, 'SecurityQuestion', 'security_question'),
-            'rStudent' => array(self::HAS_MANY, 'Students', 'parent'),
-            'rStudentCount' => array(self::STAT, 'Students', 'parent'),
-            'rClass' => array(self::HAS_ONE, 'Classes', 'teacher'),
+            'rStudent' => array(self::HAS_MANY, 'Student', 'parent'),
+            'rStudentCount' => array(self::STAT, 'Student', 'parent'),
+            'rClass' => array(self::HAS_MANY, 'Classes', 'teacher'),
             'rSmses' => array(self::HAS_MANY, 'Sms', 'account', 'order' => 'status ASC, sent DESC', 'condition'=>'status IN ('.Sms::STATUS_QUEUE.','.Sms::STATUS_SENDING.','.Sms::STATUS_SENT.')'),
         );
     }
@@ -217,12 +217,12 @@ class Account extends CActiveRecord {
         } else {
             // sending activation sms
             $message = new Sms;
-            $message->added = time();
-            $message->student = $this->info;
+            $message->account = $this->id;
             $message->to = $this->phone;
+            $message->hour1=21;
+            $message->hour2=1;
             $message->message = 'Vizitați http://siponline.ro/ pentru a vă activa contul folosind codul: ' . $this->_activation;
-            $message->status = Sms::STATUS_TOSEND;
-            $message->save();
+            $message->queue();
         }
     }
 

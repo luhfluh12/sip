@@ -135,10 +135,10 @@ class StudentController extends Controller {
     public function actionSms($id) {
         $id = (int) $id;
         $this->layout = '//layouts/column1';
-        $student = Student::model()->with('rParent.rSmses')->findByPk($id);
+        $student = Student::model()->findByPk($id);
         if ($student === null)
             throw new CHttpException(404, 'Elevul nu există');
-        if (isset($_POST['Sms']['message'])) {
+        if (isset($_POST['Sms']['message']) && $this->_adminOptions) {
             $sms = new Sms('manualSms');
             $sms->message = $_POST['Sms']['message'];
             $sms->account = $student->parent;
@@ -275,7 +275,7 @@ class StudentController extends Controller {
             $this->_model = Student::model()->findByPk((int) $id);
 
         if ($this->_model === null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
+            throw new CHttpException(404, 'Elevul nu există în baza noastră de date.');
         }
         return $this->_model;
     }

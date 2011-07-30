@@ -76,7 +76,7 @@ class Sms extends CActiveRecord {
     public static function sendCron() {
         $now = date('G');
         $smses = self::model()->findAll(array(
-            'condition'=>'`hour1`<=:now AND :now<=(`hour2`-1) AND `status`=:st',
+            'condition'=>'((`hour1`<=:now AND :now<=(`hour2`-1)) OR `hour1`<0) AND `status`=:st',
             'params'=>array(
                 ':now'=>$now,
                 ':st'=>self::STATUS_QUEUE,
