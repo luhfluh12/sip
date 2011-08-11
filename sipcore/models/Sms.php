@@ -132,7 +132,7 @@ class Sms extends CActiveRecord {
         curl_setopt($ch, CURLOPT_POST, 7);
         curl_setopt($ch, CURLOPT_POSTFIELDS, 'api_id=3294837&' .
                 'user=vlad.velici&' .
-                'password=&' .
+                'password='.urlencode("qC\"1yr[lkCB^OU").'&' .
                 'to=' . $this->to . '&' .
                 'text=' . urlencode($this->message) . '&' .
                 'callback=2&cliMsgId=' . $this->id);
