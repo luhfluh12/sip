@@ -64,9 +64,11 @@ class Warning extends CActiveRecord {
                 // recheck all the stored problems
                 $newproblems = array();
                 foreach ($draft->json as $w => $values) {
-                    $new = $w::check($draft->student, $lastSent);
-                    if ($new) {
-                        $newproblems[$w] = $new;
+                    if (class_exists($w)) {
+                        $new = $w::check($draft->student, $lastSent);
+                        if ($new) {
+                            $newproblems[$w] = $new;
+                        }
                     }
                 }
                 // if there are still problems, render and send
@@ -76,7 +78,8 @@ class Warning extends CActiveRecord {
                     $sms->account = $draft->rStudent->parent;
                     $sms->message = '';
                     foreach ($newproblems as $w => $stored) {
-                        $sms->message .= $w::render($stored);
+                        if (class_exists($w))
+                            $sms->message .= $w::render($stored);
                     }
                     $sms->hour1 = $draft->rStudent->rParent->sms_hour1;
                     $sms->hour2 = $draft->rStudent->rParent->sms_hour2;
@@ -104,10 +107,10 @@ class Warning extends CActiveRecord {
             if (!is_array($draft->json))
                 $draft->json = array();
             foreach ($warnings as $warning) {
-                if (!isset($draft->json[$warning])) {
+                if (!isset($draft->json[$warning]) && class_exists($warning)) {
                     $new = $warning::check($student, $timelimit);
                     if ($new !== false) {
-                        $draft->json += array($warning=>$new);
+                        $draft->json += array($warning => $new);
                         if ($save === false)
                             $save = true;
                     }
@@ -118,9 +121,11 @@ class Warning extends CActiveRecord {
         } else {
             $problems = array();
             foreach ($warnings as $warning) {
-                $new = $warning::check($student, $timelimit);
-                if ($new !== false)
-                    $problems[$warning] = $new;
+                if (class_exists($warning)) {
+                    $new = $warning::check($student, $timelimit);
+                    if ($new !== false)
+                        $problems[$warning] = $new;
+                }
             }
             if (!empty($problems)) {
                 $draft = new Warning;

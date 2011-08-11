@@ -144,30 +144,31 @@ class SiteController extends Controller
         }
 
         public function actionSentConfirmation() {
-            if (!isset($_POST['cliMsgId'], $_POST['charge'], $_POST['status'], $_POST['from']))
+            if (!isset($_GET['cliMsgId'], $_GET['charge'], $_GET['status']))
                     throw new CHttpException (400, 'Invalid parameters');
-            if (Yii::app()->request->userHostAddress=='196.5.254.33') {
-                $model = Sms::model()->findByPk((int)$_POST['cliMsgId']);
+//           if (Yii::app()->request->userHostAddress=='196.5.254.33') {
+                $model = Sms::model()->findByPk((int)$_GET['cliMsgId']);
                 if ($model === null) {
                     $t = '';
-                    foreach ($_POST as $k => $v) {
+                    foreach ($_GET as $k => $v) {
                         $t .= $k . " = ". $v . "\n";
                     }
                     Yii::log('SMS Confirmation with no SMS in db. Datas received: '.$t, 'warning');
                     Yii::app()->end();
                 } else {
-                    if ($_POST['status']=='004' || $_POST['status']=='008') {
+                    if ($_GET['status']=='004' || $_GET['status']=='008') {
                         $model->status=Sms::STATUS_SENT;
                         $model->sent=time();
-                        $model->charge=$_POST['charge'];
+                        $model->charge=$_GET['charge'];
                     } else {
                         $model->status=Sms::STATUS_ERROR;
-                        $model->charge=$_POST['charge'];
+                        $model->charge=$_GET['charge'];
                     }
                     $model->save();
                 }
-            } else
-                throw new CHttpException(403, 'Acces respins.');
+  //          } else
+    //            throw new CHttpException(403, 'Acces respins.');
+                echo "done";
         }
 
 }
