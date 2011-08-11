@@ -9,7 +9,7 @@
  */
 class Subject extends CActiveRecord
 {
-        const ID_PURTARE=29;
+        const ID_PURTARE=0;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Subject the static model class
@@ -127,11 +127,11 @@ class Subject extends CActiveRecord
         }
         /**
          *  Checks if a class has a subject.
-         * @param $class integer
-         * @param $subject integer
-         * @param $do=false mixed Value 'add' adds the assign automatically if needed
+         * @param integer $class
+         * @param integer $subject
+         * @param mixed $do mixed Value 'add' adds the assign automatically if needed
          *  'remove' deletes the assign if exists
-         * @return bool For $do===false it returns the existence of the assignment,
+         * @return boolean For $do===false it returns the existence of the assignment,
          *  otherwise, if insert or delete succeeded
          */
         public function checkAssign($class, $subject, $do=false) {
@@ -163,7 +163,7 @@ class Subject extends CActiveRecord
          * @return string CJSON encoded list of suggested subjects 
          */
         public function autoComplete ($term) {
-            $query ="SELECT name FROM ".$this->tableName()." WHERE name LIKE :term LIMIT 0,5";
+            $query ="SELECT name FROM ".$this->tableName()." WHERE id!=0 AND name LIKE :term LIMIT 0,5";
             $command =Yii::app()->db->createCommand($query);
             $command->bindValue(":term", '%'.$term.'%', PDO::PARAM_STR);
             return CJSON::encode($command->queryColumn());

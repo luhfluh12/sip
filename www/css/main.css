@@ -375,7 +375,7 @@ div.search-form
 .schoolmark a {color:#06c !important;text-decoration:underline;}
 .schoolmarkEditer {
     display:none;
-    border:1px dashed #06c;
+    border: 1px solid #06c;
     padding:3px;
     background-color:#fff;
     border-radius:3px;
@@ -537,4 +537,16 @@ div.search-form
     background-color: #FF5500;
     color:#fff;
     text-decoration: none;
+}
+div.archive {
+    border:1px solid #999;margin:5px;padding:3px;border-radius:3px;
+}
+div.archive div {
+    padding:5px;border-radius:3px;font-weight:bold;
+}
+div.archive div.active {
+    background-color:#eee;
+}
+div.archive div.inactive {
+    background-color:#cfc;
 }

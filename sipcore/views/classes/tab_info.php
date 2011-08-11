@@ -4,7 +4,7 @@
 <p>Clasa : <?php echo $class->grade.' '.$class->name; ?></p>
 <p>Profil : <?php echo $class->profile; ?></p>
 <h1>Diriginte</h1>
-<?php $teacher = $class -> rTeacher; ?>
+<?php $teacher = $class -> rAccount; ?>
 <p><strong><?php echo $teacher->name; ?></strong></p>
-<p>Telefon: <?php echo $teacher->rAccount->phone; ?></p>
-<p>E-mail: <?php echo $teacher->rAccount->email; ?></p>
+<p>Telefon: <?php echo $teacher->phone; ?></p>
+<p>E-mail: <?php echo $teacher->email; ?></p>

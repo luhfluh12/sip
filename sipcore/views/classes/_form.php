@@ -5,13 +5,13 @@
 	'enableAjaxValidation'=>false,
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+	<p class="note">Câmpurile marcate cu <span class="required">*</span> sunt obligatorii.</p>
 
-	<?php echo $form->errorSummary(array($class,$teacher,$account)); ?>
+	<?php echo $form->errorSummary(array($class,$account)); ?>
 
 	<div class="row">
 		<?php echo $form->labelEx($class,'school'); ?>
-		<?php echo $form->dropDownList($class,'school',School::getList()); ?>
+		<?php echo $form->dropDownList($class,'school',CHtml::listData(School::model()->findAll(), 'id', 'name')); ?>
 		<?php echo $form->error($class,'school'); ?>
 	</div>
 
@@ -34,13 +34,9 @@
 	</div>
         
         <h1>Despre diriginte</h1>
-        
-	<div class="row">
-		<?php echo $form->labelEx($teacher,'name'); ?>
-		<?php echo $form->textField($teacher,'name',array('size'=>60,'maxlength'=>50)); ?>
-		<?php echo $form->error($teacher,'name'); ?>
-	</div>
 
+        <p class="note">Dacă numărul de telefon este deja folosit, noile atribuții vor fi adăugate acelui cont.</p>
+        
 	<div class="row">
 		<?php echo $form->labelEx($account,'email'); ?>
 		<?php echo $form->textField($account,'email',array('size'=>60,'maxlength'=>254)); ?>
@@ -52,7 +48,7 @@
 		<?php echo $form->error($account,'phone'); ?>
 	</div>
         
-        <h1>Limitări</h1>
+        <h1>Limite</h1>
         <div class="row">
 		<?php echo $form->labelEx($class,'students'); ?>
 		<?php echo $form->textField($class,'students',array('size'=>60,'maxlength'=>2)); ?>
@@ -60,11 +56,11 @@
 	</div>
         <div class="row">
 		<?php echo $form->labelEx($class,'payment'); ?>
-		<?php echo $form->textField($class,'payment',array('size'=>60,'maxlength'=>10)); ?>
+		<?php echo $form->textField($class,'payment',array('size'=>60,'maxlength'=>30)); ?>
 		<?php echo $form->error($class,'payment'); ?>
 	</div>
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($class->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php echo CHtml::submitButton('Adaugă clasă'); ?>
 	</div>
 <?php $this->endWidget(); ?>
 

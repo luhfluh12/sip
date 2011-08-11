@@ -42,7 +42,12 @@ class Authorization extends CActiveRecord {
             array('value', 'length', 'max' => 8),
         );
     }
-
+    public function give($account, $action, $value) {
+        if ($this->authExists($account, $action, $value))
+            return true;
+        $this->attributes=array('account'=>$account,'action'=>$action,'value'=>$value);
+        return $this->save();
+    }
     /**
      * Checks if the specified user can do the specified authentication item
      * @param type $account

@@ -4,16 +4,40 @@ $this->breadcrumbs=array(
 	$school->name=>array('view','id'=>$school->id),
 );
 
-$this->pageTitle='Actualizare școală';
+$this->pageTitle='Actualizare școala';
 
-$this->menu=array(
-	array('label'=>'List School', 'url'=>array('index')),
-	array('label'=>'Create School', 'url'=>array('create')),
-	array('label'=>'View School', 'url'=>array('view', 'id'=>$school->id)),
-	array('label'=>'Manage School', 'url'=>array('admin')),
-);
 ?>
 
-<h1>Update School <?php echo $school->id; ?></h1>
+<h1><?php echo $school->name; ?> <?php echo $school->city; ?></h1>
 
-<?php echo $this->renderPartial('_form', array('school'=>$school,'account'=>$account)); ?>
+<div class="form">
+
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'school-form',
+	'enableAjaxValidation'=>false,
+)); ?>
+
+	<p class="note">Câmpurile marcate cu <span class="required">*</span> sunt obligatorii.</p>
+
+	<?php echo $form->errorSummary($school); ?>
+
+	<div class="row">
+		<?php echo $form->labelEx($school,'name'); ?>
+		<?php echo $form->textField($school,'name',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->error($school,'name'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($school,'city'); ?>
+		<?php echo $form->textField($school,'city',array('size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->error($school,'city'); ?>
+	</div>
+
+
+	<div class="row buttons">
+		<?php echo CHtml::submitButton('Actualizează informații'); ?>
+	</div>
+
+<?php $this->endWidget(); ?>
+
+</div><!-- form -->

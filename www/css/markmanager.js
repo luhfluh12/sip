@@ -26,7 +26,7 @@ function delete_absence(id){
             'success':function() {
                     $('#schoolabsence_'+id).slideUp('fast');
                 },
-            'url':'index.php?r=absences/delete&id='+id+'&ajax=true',
+            'url':'index.php?r=absence/delete&id='+id+'&ajax=true',
             'cache':false,
             'data':jQuery(this).parents("form").serialize()
         });
@@ -42,7 +42,7 @@ function authorize_absence(id,auth){
                 $('#schoolabsence_'+id+'_auth'+(3-auth)).css('display','inline-block');
                 $('#schoolabsence_'+id+'_auth'+(auth)).css('display','none');
             },
-        'url':'index.php?r=absences/authorize&id='+id+'&ajax=true',
+        'url':'index.php?r=absence/authorize&id='+id+'&ajax=true',
         'cache':false,
         'data':'authorized='+auth
     });

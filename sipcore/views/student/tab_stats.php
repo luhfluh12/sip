@@ -4,28 +4,6 @@
 <div id="choices"></div>
 <div class="clearfix"></div>
 
-<?php 
-$comma = false;
-$comma2=false;
-$json = '{';
-$subject = false;
-foreach ($averages as $average) {
-    if ($average->subject != $subject) {
-        if ($subject) {
-            //$json .= "]}";
-        }
-        $json .= ($comma ? "]},\n" : "").'"m'.$average->subject."\":{\n".
-                "label:\"".$average->rSubject->name."\",\n".
-                "data:[";
-        if ($comma===false) $comma=true;
-        $comma2=false;
-        $subject=$average->subject;
-    }
-    $json .= ($comma2 ? ',' : '')."[".$average->date."000".", ".$average->average."]";
-    if ($comma2===false) $comma2=true;
-}
-$json .= ']}}';
-?>
 <script type="text/javascript">
 $(function () {
     var datasets = <?php echo $json; ?>;
@@ -60,7 +38,7 @@ $(function () {
 
         if (data.length > 0)
             $.plot($("#placeholder"), data, {
-                yaxis: { max: 10, min:1 },
+                yaxis: {},
                 xaxis: { mode: "time", timeformat: "%d/%m/%y" },
                 legend:{container:$("#legend")}
             });

@@ -8,7 +8,7 @@
    // 'onclick'=>'javascript:$("#auth_absences_interval").fadeToggle();return false;',
    // 'class'=>'markmanagerButton'
 //)); ?>
-<?php echo CHtml::link('Notă purtare:'.$student->getPurtare() ,'#',array(
+<?php echo CHtml::link('Notă purtare:'.$purtare ,'#',array(
     'onclick'=>'javascript:$("#nota_purtare").fadeToggle();return false;',
     'class'=>'markmanagerButton'
 )); ?>
@@ -22,7 +22,7 @@
             'enableAjaxValidation'=>false,
     )); ?>
 
-    <?php echo $form->hiddenField(new Absences,'student',array('value'=>$student->id,'name'=>'student')); ?>
+    <?php echo $form->hiddenField(new Absence,'student',array('value'=>$student->id,'name'=>'student')); ?>
     <p><strong>Dată început:</strong><br />
     <?php $this->widget('zii.widgets.jui.CJuiDatePicker',
         array(
@@ -65,7 +65,7 @@
     ));?>
     </p>
 
-    <?php echo CHtml::ajaxSubmitButton('adaugă absențe', array('absences/saveInterval'),array(
+    <?php echo CHtml::ajaxSubmitButton('adaugă absențe', array('absence/saveInterval'),array(
        'success'=>"js:function(data){
             var obj = $.parseJSON(data);
             updateAbsences(obj);
@@ -89,8 +89,8 @@
             'enableAjaxValidation'=>false,
     )); ?>
 
-    <?php echo $form->hiddenField(new Averages,'student',array('value'=>$student->id,'name'=>'Mark[student]')); ?>
-    <?php echo CHtml::dropDownList('newpurtare',$student->getPurtare(),array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10)); ?>
+    <?php echo $form->hiddenField(new Chart,'student',array('value'=>$student->id,'name'=>'Mark[student]')); ?>
+    <?php echo CHtml::dropDownList('newpurtare',$purtare,array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10)); ?>
     <?php echo CHtml::ajaxSubmitButton('modifică', array('mark/purtare'),array(
        'success'=>"js:function(data){
             $('#purtare_status').html('Nota a fost actualizata cu succes!');

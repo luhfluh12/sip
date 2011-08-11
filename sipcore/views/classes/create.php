@@ -11,4 +11,4 @@ $this->menu=array(
 $this->pageTitle='Adaugă o clasă';
 ?>
 
-<?php echo $this->renderPartial('_form', array('class'=>$class,'teacher'=>$teacher,'account'=>$account)); ?>
+<?php echo $this->renderPartial('_form', array('class'=>$class,'account'=>$account)); ?>
