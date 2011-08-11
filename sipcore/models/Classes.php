@@ -85,8 +85,6 @@ class Classes extends CActiveRecord {
                     'select' => 'students',
                     'condition' => 'id=:id',
                     'params' => array(':id' => $id)));
-        echo "rStudentCount:"; var_dump($class->rStudentCount);
-        echo "students:"; var_dump($class->students);
         if ($class !== null && $class->rStudentCount < $class->students)
             return true;
         return false;
