@@ -1,7 +1,6 @@
 <?php
 
 class SAbsences {
-
     public static function calculate($class, $year, $semester) {
         $students = Student::getByClass($class);
         $query = 'SELECT SUM(auth) as motivate, SUM(unauth) as nemotivate FROM `absencesHistory` WHERE student IN (' . implode(',', $students) . ') AND year=:year AND semester=:semester';
