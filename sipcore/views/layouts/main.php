@@ -23,27 +23,19 @@
 
             <div id="header">
                 <div id="logo">
-                    <img src="images/web.gif" alt="siponline" />
+                    <?php echo CHtml::link('<img src="images/web.gif" alt="siponline" />', array('site/index')); ?>
+                    
                 </div>
                 <div id='l_description'>
                     Site-ul de dezvoltare a proiectului SIP. <?php echo CHtml::link('Află mai multe &rsaquo;&rsaquo;', array('site/dev')); ?>
                 </div>
-                <div id="mainmenu">
-                    <?php
-                    $this->widget('zii.widgets.CMenu', array(
-                        'items' => array(
-                            array('label' => 'Home', 'url' => array('/site/index')),
-                            array('label' => 'Scoli', 'url' => array('/school/index')),
-                            array('label' => 'Contul meu',
-                                'url' => array('/account/index'),
-                                'visible' => !Yii::app()->user->isGuest),
-                            array('label' => 'Logout (' . Yii::app()->user->name . ')',
-                                'url' => array('/site/logout'),
-                                'visible' => !Yii::app()->user->isGuest),
-                        ),
-                    ));
-                    ?>
-                </div><!-- mainmenu -->
+                <?php if (!Yii::app()->user->isGuest): ?>
+                    <div id="usermenu">
+                        <span><?php echo Yii::app()->user->name; ?></span>
+                        <?php echo CHtml::link('Contul meu', array('account/update')); ?> - 
+                        <?php echo CHtml::link('Deconectare', array('site/logout')); ?>
+                    </div><!-- mainmenu -->
+                <?php endif; ?>
             </div><!-- header -->
             <div id="page_title">
                 <div id="page_title_content" class="clearfix">

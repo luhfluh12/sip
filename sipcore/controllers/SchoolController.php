@@ -36,7 +36,7 @@ class SchoolController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view'),
-                'users' => array('*'),
+                'roles' => array('admin'),
             ),
             array('allow',
                 'actions' => array('create', 'admin', 'delete'),
