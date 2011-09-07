@@ -25,7 +25,7 @@ class Schoolitem extends CActiveRecord {
         $now = time();
         // if the date is in the future
         if ($date > $now)
-            return false;
+           // return false;
         // if the date is in another schoolyear
         if (Schoolyear::thisYear($date) !== Schoolyear::thisYear($now))
             return false;

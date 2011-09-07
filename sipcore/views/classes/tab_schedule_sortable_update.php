@@ -1,4 +1,4 @@
-<table cellpadding="0" cellspacing="2" width="100%"><tr><td style="vertical-align: top;">
+<table cellpadding="0" cellspacing="2" width="100%"><tr>
     <?php $weekday = false; $items = array();
     foreach ($data as $item): ?>
         <?php if ($item->weekday !== $weekday): ?>

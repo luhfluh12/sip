@@ -8,7 +8,7 @@ $this->menu=array(
 
 ?>
 
-<table width="100%" celpadding="5" cellspacing="0"><tr>
+<table width="100%" cellpadding="5" cellspacing="0"><tr>
 <?php
 if (!empty($class)) {
     $old = 0;

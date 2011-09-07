@@ -16,7 +16,7 @@ $this->sip_title = $model->name.' '.$model->city;
 
 <h1>Clasele înscrise în SIP</h1>
 
-<table width="100%" celpadding="5" cellspacing="0"><tr>
+<table width="100%" cellpadding="5" cellspacing="0"><tr>
 <?php
 if (!empty($class)) {
     $old = 0;

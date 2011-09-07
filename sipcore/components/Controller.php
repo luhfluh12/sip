@@ -22,12 +22,9 @@ class Controller extends CController {
      */
     public $breadcrumbs = array();
     /**
-     * @var array If sip_title is an array, it should be specified as arrays with
-     * img, text and title keys. The result is some panels. Used for home page.
-     * If sip_title is a string, it is the title rendered right after the breadcrumbs.
-     * 
-     * note: If sip_title is empty(), the pageTitle will be used instead
-     * note2: If sip_title is an array, breadcrumbs are not displayed
+     * @var mixed If it is an array, the first argument is the view to be used to render the header 
+     * and the second is a string to be used as the actual title. If it is a string, it is the page
+     * title. The default view is "//layouts/headers/normal.php"
      */
     public $sip_title = array();
 
