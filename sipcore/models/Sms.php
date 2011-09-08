@@ -125,7 +125,7 @@ class Sms extends CActiveRecord {
 
         //sending
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://api.clickatell.com/http/sendmsg");
+        curl_setopt($ch, CURLOPT_URL, "https://api.clickatell.com/http/sendmsg");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
@@ -136,7 +136,7 @@ class Sms extends CActiveRecord {
                 'to=' . $this->to . '&' .
                 'text=' . urlencode($this->message) . '&' .
                 'callback=2&cliMsgId=' . $this->id);
-        curl_setopt($ch, CURLOPT_CAINFO, Yii::app()->basePath . 'sms_ssl/www.clickatell.com');
+        curl_setopt($ch, CURLOPT_CAINFO, Yii::app()->basePath . 'sms_ssl/api.clickatell.com');
         $response = curl_exec($ch);
         curl_close($ch);
 
