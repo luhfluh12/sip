@@ -56,7 +56,7 @@ class Sms extends CActiveRecord {
     }
     /**
      * Adds the current message in the sending queue.
-     * @param boolean $tryToSend Whether to try sending the messages now (may slow down the process)
+     * @param boolean $tryToSend Whether to try sending the message now (may slow down the process)
      * @return boolean Whether the action succeeded 
      */
     public function queue($tryToSend=true) {
@@ -73,6 +73,10 @@ class Sms extends CActiveRecord {
         return $this->save();
     }
 
+    /**
+     * Gets and sends all messages that should be send at the running hour in the sending queue.
+     * @return int The number of sent messages
+     */
     public static function sendCron() {
         $now = date('G');
         $smses = self::model()->findAll(array(
@@ -117,29 +121,17 @@ class Sms extends CActiveRecord {
         );
     }
 
-    // sending message
+    /**
+     * Sends the current SMS model to the gateway
+     * @return boolean Whether the sending was a success 
+     */
     public function send() {
         if (!$this->to) {
             $this->to = $this->rAccount->phone;
         }
 
         //sending
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.clickatell.com/http/sendmsg");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_POST, 7);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 'api_id=3294837&' .
-                'user=vlad.velici&' .
-                'password='.urlencode("qC\"1yr[lkCB^OU").'&' .
-                'to=' . $this->to . '&' .
-                'text=' . urlencode($this->message) . '&' .
-                'callback=2&cliMsgId=' . $this->id);
-        curl_setopt($ch, CURLOPT_CAINFO, Yii::app()->basePath . 'sms_ssl/api.clickatell.com');
-        $response = curl_exec($ch);
-        curl_close($ch);
-
+        $respose = Yii::app()->sms->send(array('to'=>$this->to, 'message'=>$this->message));
         if ($response !== false)
             $this->status = self::STATUS_SENDING;
         else
