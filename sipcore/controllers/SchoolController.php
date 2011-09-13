@@ -1,5 +1,4 @@
 <?php
-
 class SchoolController extends Controller {
 
     /**
@@ -13,8 +12,8 @@ class SchoolController extends Controller {
      */
     public function filters() {
         return array(
-            'accessControl - update', // perform access control for CRUD operations
-            'editControl + update'
+            'accessControl - update view', // perform access control for CRUD operations
+            'editControl + update view'
         );
     }
 
@@ -34,12 +33,7 @@ class SchoolController extends Controller {
      */
     public function accessRules() {
         return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
-                'roles' => array('admin'),
-            ),
             array('allow',
-                'actions' => array('create', 'admin', 'delete'),
                 'roles' => array('admin'),
             ),
             array('deny', // deny all users
@@ -56,9 +50,14 @@ class SchoolController extends Controller {
         if (!Yii::app()->user->checkAccess('admin'))
             $this->layout = 'column1';
         $model = $this->loadModel($id);
+        $classes = $model->rClasses;
+        if (empty($classes)) {
+            Yii::app()->user->setFlash('noClasses',true);
+            $this->redirect(array('classes/create','school'=>$id));
+        }
         $this->render('view', array(
             'model' => $model,
-            'class' => $model->rClasses,
+            'class' => $classes,
         ));
     }
 
@@ -87,7 +86,7 @@ class SchoolController extends Controller {
                     $this->redirect(array('view', 'id' => $school->id));
                 }
             } else {
-                // validating the $account to display possible errors
+                // validating the $account only to display possible errors
                 $account = new Account();
                 $account->attributes=$_POST['Account'];
                 $account->validate();

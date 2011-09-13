@@ -24,7 +24,7 @@ class SecurityQuestionController extends Controller {
      */
     public function accessRules() {
         return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
+            array('allow', // allow only admin role to access this controller
                 'roles' => array('admin'),
             ),
             array('deny', // deny all users

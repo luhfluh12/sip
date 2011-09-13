@@ -34,15 +34,10 @@ class Classes extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('school, payment, students', 'unsafe', 'on' => 'updatePart'),
             array('grade, name, profile', 'required'),
-            array('school', 'required', 'on' => 'insert, update'),
-            array('school, grade, students', 'numerical', 'integerOnly' => true, 'on' => 'insert, update'),
-            array('school','exist','className'=>'School','attributeName'=>'id','on'=>'insert, update'),
-            array('name', 'length', 'max' => 10, 'on' => 'insert, update, updatePart'),
-            array('payment', 'safe', 'on' => 'insert, update'),
-            array('profile', 'length', 'max' => 150, 'on' => 'insert, update, updatePart'),
-            array('name,profile','filter','filter'=>array('CHtml','encode')),
+            array('grade', 'numerical', 'integerOnly' => true, 'on' => 'insert, update'),
+            array('name', 'length', 'max' => 10),
+            array('profile', 'length', 'max' => 150),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
             array('id, school, grade, name, profile', 'safe', 'on' => 'search'),
@@ -61,7 +56,7 @@ class Classes extends CActiveRecord {
             'rStudentCount' => array(self::STAT, 'Student', 'class'),
             'rAccount' => array(self::BELONGS_TO, 'Account', 'teacher'),
             'rSchedule' => array(self::HAS_MANY, 'Schedule', 'class'),
-            'rSubjects' => array(self::MANY_MANY, 'Subject', 'schedule(class,subject)', 'order'=>'rSubjects.name ASC'),
+            'rSubjects' => array(self::MANY_MANY, 'Subject', 'schedule(class,subject)', 'order' => 'rSubjects.name ASC'),
         );
     }
 
@@ -75,19 +70,19 @@ class Classes extends CActiveRecord {
             'grade' => 'Clasă (9, 10, 11 etc.)',
             'name' => 'Denumire (A,B,C etc.)',
             'profile' => 'Profil',
-            'payment' => 'Data următoarei plăți',
-            'students' => 'Numărul maxim de elevi permis',
         );
     }
 
     public static function canAddStudent($id) {
-        $class = self::model()->with('rStudentCount')->find(array(
-                    'select' => 'students',
-                    'condition' => 'id=:id',
-                    'params' => array(':id' => $id)));
-        if ($class !== null && $class->rStudentCount < $class->students)
-            return true;
-        return false;
+        /*        $class = self::model()->with('rStudentCount')->find(array(
+          'select' => 'students',
+          'condition' => 'id=:id',
+          'params' => array(':id' => $id)));
+          if ($class !== null && $class->rStudentCount < $class->students)
+          return true;
+          return false;
+         */
+        return true;
     }
 
     /**
@@ -107,21 +102,7 @@ class Classes extends CActiveRecord {
         $criteria->compare('profile', $this->profile, true);
 
         return new CActiveDataProvider(get_class($this), array(
-            'criteria' => $criteria,
-        ));
+                    'criteria' => $criteria,
+                ));
     }
-
-    protected function afterFind() {
-        parent::afterFind();
-        $this->payment = date('d.m.Y', $this->payment);
-    }
-
-    protected function beforeSave() {
-        if (parent::beforeSave()) {
-            $this->payment = strtotime($this->payment);
-            return true;
-        } else
-            return false;
-    }
-
 }

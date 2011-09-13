@@ -45,9 +45,18 @@ class ClickatellSms extends CApplicationComponent {
 
     /** @var integer The callback level. More in the Clickatell HTTP API Manual */
     public $callbackLevel = 2;
+
+    /** @var string The type of the SMS (e.g. SMS_TEXT, SMS_FLASH). Check Clickatell docs for more */
+    public $smsType = false;
+
     // component level
+
     /** @var boolean Whether to print debug information on screen. Useful when debugging from shell */
     public $debug = false;
+
+    /** @var boolean Whether to physically send the messages */
+    public $real = true;
+    
     protected $_session = null;
     protected $_error = null;
     const CACHE_ID = 'clickatell-session';
@@ -59,6 +68,10 @@ class ClickatellSms extends CApplicationComponent {
      * @return mixed String with the clickatell SMS ID if it succeeds or FALSE if it fails
      */
     public function send($config) {
+        // if the real sending is disabled, just return true
+        if ($this->real!==true)
+            return true;
+        
         // if there is no session, return the error
         if (!$this->getSession()) {
             return array('001', 'Authentication failed.');
@@ -80,6 +93,8 @@ class ClickatellSms extends CApplicationComponent {
         if ($this->smsId) {
             $params += array('cliMsgId' => $this->smsId);
         }
+        if ($this->smsType)
+            $params += array('msg_type' => $this->smsType);
         // send the request to clickatell
         $response = $this->clickatellRequest('sendmsg', $params);
         if ($response !== false)
@@ -93,10 +108,10 @@ class ClickatellSms extends CApplicationComponent {
             if ($cached !== false) {
                 $this->_session = $cached;
             } else {
-                
+
                 if ($this->debug === true)
                     echo " * No Clickatell API Session cached. Authenticating...\n";
-                
+
                 $request = $this->clickatellRequest('auth', array(
                     'user' => urlencode($this->clickatell_username),
                     'password' => $this->clickatell_password,
@@ -105,15 +120,14 @@ class ClickatellSms extends CApplicationComponent {
                 if ($request !== false) {
                     Yii::app()->cache->set(self::CACHE_ID, $request, self::CACHE_TIME);
                     $this->_session = $request;
-                    
+
                     if ($this->debug === true)
                         echo " * Authentication success.\n";
-                    
                 } else {
-                
+
                     if ($this->debug === true)
                         echo " * Authentication failed.\n";
-                    
+
                     return false;
                 }
             }
@@ -131,7 +145,7 @@ class ClickatellSms extends CApplicationComponent {
         if ($this->debug === true) {
             echo " ** Initializing ", $method, " (", ($this->https ? 'https' : 'http'), ") request...\n";
         }
-        
+
         $request = curl_init();
         $postData = '';
         foreach ($params as $name => $value) {

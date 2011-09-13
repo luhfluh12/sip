@@ -1,14 +1,19 @@
 <?php
-$this->breadcrumbs=array(
-	'Clase'=>array('index'),
+
+/**
+ * @var $this ClassesController
+ * @var $school School
+ * @var $class Classes
+ * @var $account Account
+ */
+$this->breadcrumbs = array(
+    $school->name.' '.$school->city => array('school/view', 'id' => $school->id),
+    ''
 );
 
-$this->menu=array(
-	array('label'=>'List Classes', 'url'=>array('index')),
-	array('label'=>'Manage Classes', 'url'=>array('admin')),
-);
+$this->pageTitle = 'Adaugă o clasă';
+if (Yii::app()->user->getFlash('noClasses', false) === true): ?>
+    <div class="flash-notice">Nu este înscrisă nici o clasă din această școală. Adăugați o clasă completând formularul de mai jos.</div>
+<?php endif; ?>
 
-$this->pageTitle='Adaugă o clasă';
-?>
-
-<?php echo $this->renderPartial('_form', array('class'=>$class,'account'=>$account)); ?>
+<?php echo $this->renderPartial('_form', array('class' => $class, 'account' => $account)); ?>
