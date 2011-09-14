@@ -6,6 +6,10 @@ $this->breadcrumbs = array(
 $this->sip_title = CHtml::encode($model->name . ' ' . $model->city);
 ?>
 
+<div class="inpagemenu">
+    <?php echo CHtml::link('Adaugă o clasă', array('classes/create','school'=>$model->id), array('class'=>'button')); ?>
+</div>
+
 <h1>Clasele înscrise în SIP</h1>
 
 <table width="100%" cellpadding="5" cellspacing="0"><tr>

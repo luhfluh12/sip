@@ -20,6 +20,7 @@
  * @property string $security_question
  * @property string $security_answer
  * @property array $rAccountRevisions
+ * @property array $rAuthorizations
  */
 class Account extends CActiveRecord {
     const TYPE_TEACHER=2;

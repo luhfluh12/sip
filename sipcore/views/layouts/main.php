@@ -60,10 +60,10 @@
             </div>
             <div id="footer">
                 <div>
-                    <?php echo CHtml::link('Despre', array('site/page', 'view' => 'about')); ?> -
-                    <?php echo CHtml::link('Termeni și condiții de utilizare', array('site/page', 'view' => 'terms')); ?> -
-                    <?php echo CHtml::link('Ce spun diriginții?', array('site/page', 'view' => 'reviews')); ?> -
-                    <?php echo CHtml::link('Contact', array('site/contact')); ?>
+                    <?php echo CHtml::link('Despre', array('/site/page', 'view' => 'about')); ?> -
+                    <?php echo CHtml::link('Termeni și condiții de utilizare', array('/site/page', 'view' => 'terms')); ?> -
+                    <a href="http://blog.siponline.ro" target="_blank" title="Blogul de dezvoltare a proiectului">Blog de dezvoltare</a> -
+                    <?php echo CHtml::link('Contact', array('/site/contact')); ?>
                 </div>
                 Copyright &copy; 2011 by Vlad Velici.<br/>
                 All Rights Reserved.

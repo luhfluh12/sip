@@ -1,42 +1,36 @@
 <?php
+/**
+ * @var $this SiteController
+ */
 $this->pageTitle = Yii::app()->name;
 $this->sip_title = array('//layouts/headers/home');
 ?>
-<h1>Bun venit!</h1>
-<?php
-$this->widget('zii.widgets.CMenu', array(
-    'items' => array(
-        array('label' => 'Contul meu', 'url' => array('account/index')),
-        array('label' => 'Lista de școli înscrise în SIP', 'url' => array('school/index')),
-        array('label' => 'Vacanțe', 'url' => array('breaks/index'), 'visible' => Yii::app()->user->checkAccess('admin')),
-        array('label' => 'Centrul de ajutor', 'url' => array('/help/post/index')),
-        array('label' => 'Întrebări de securitate', 'url' => array('securityQuestion/index'), 'visible' => Yii::app()->user->checkAccess('admin')),
-    ),
-    'htmlOptions' => array(
-        'class' => 'bigmenu',
-    ),
-));
-$myStuff = array();
-$students = Yii::app()->user->model()->rStudent;
-if (!empty($students)) {
-    foreach ($students as $student) {
-        $myStuff[] = array('label' => $student->name, 'url' => array('student/view', 'id' => $student->id));
-    }
-}
-$classes = Yii::app()->user->model()->rClass;
-if (!empty($classes)) {
-    foreach ($classes as $class) {
-        $myStuff[] = array('label' => $class->grade.$class->name.' '.$class->profile, 'url' => array('classes/view', 'id' => $class->id));
-    }
-}
-if (!empty($myStuff)) {
-    ?><h1>chestii</h1><?php
-    $this->widget('zii.widgets.CMenu', array(
-    'items' => $myStuff,
-    'htmlOptions' => array(
-        'class' => 'bigmenu',
-    ),
-));
-}
-    
-    
+<div class="span-6">
+    <h1>Contul meu</h1>
+    <?php if (!Yii::app()->user->model()->security_question): ?>
+        <div class="flash-notice">
+            Nu ați setat o întrebare de securitate.
+            <?php echo CHtml::link('Setați acum', array('account/update', 'p' => 'question')); ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!Yii::app()->user->model()->name): ?>
+        <div class="flash-notice">
+            Nu v-ați scris încă numele complet.
+            <?php echo CHtml::link('Completați-l acum', array('account/update', 'p' => 'general')); ?>
+        </div>
+    <?php endif; ?>
+    <p>
+        <strong>Adresă e-mail</strong><br />
+        <?php echo CHtml::encode(Yii::app()->user->model()->email); ?>
+    </p>
+    <p>
+        <strong>Număr de telefon</strong><br />
+        <?php echo CHtml::encode(Yii::app()->user->model()->phone); ?>
+    </p>
+    <?php echo CHtml::link('Actualizare cont', array('account/update'), array('class' => 'button')); ?>
+</div>
+
+    <?php foreach ($authorizations as $auth) {
+        $this->renderPartial('//helpers/auth/'.$auth->action,array('model'=>$auth->getModelByAction()));
+    } ?>
+
