@@ -14,23 +14,39 @@ class ClassesController extends Controller {
      */
     public function filters() {
         return array(
-            'accessControl - view schedule statistics sms updatePart',
-            'formTeacher + view schedule statistics sms updatePart'
+            'accessControl - view schedule statistics sms updatePart create',
+            'formTeacher + view schedule statistics sms updatePart',
+            'schoolManager + create',
         );
     }
 
     public function filterFormTeacher($c) {
         if (!isset($_GET['id'])) {
-            throw new CHttpException(404, "Pagina nu exită");
+            throw new CHttpException(404, "Pagina nu exită.");
             return false;
         }
         $_GET['id'] = (int) $_GET['id'];
 
-        if (Yii::app()->user->checkAccess('admin') || Yii::app()->user->checkAccess('formteacher:' . $_GET['id'])) {
+        if (Yii::app()->user->checkAccess('admin') ||
+                Yii::app()->user->checkAccess('formteacher:' . $_GET['id']) ||
+                Yii::app()->user->checkAccess('schoolmanager:' . $this->loadModel($_GET['id'])->school)) {
             $c->run();
             return true;
         }
-        throw new CHttpException(403, 'Nu poți vedea acastă clasă.');
+        throw new CHttpException(403, 'Ne pare rău, dar nu aveți acces la această clasă.');
+        return false;
+    }
+
+    public function filterSchoolManager($c) {
+        if (!isset($_GET['school'])) {
+            throw new CHttpException(404, "Pagina nu există.");
+            return false;
+        }
+        if (Yii::app()->user->checkAccess('schoolmanager:' . intval($_GET['school'])) || Yii::app()->user->checkAccess('admin')) {
+            $c->run();
+            return true;
+        }
+        throw new CHttpException(403, 'Ne pare rău, dar nu aveți acces la acestă pagină.');
         return false;
     }
 
@@ -68,7 +84,13 @@ class ClassesController extends Controller {
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      */
-    public function actionCreate() {
+    public function actionCreate($school) {
+        $this->layout = '//layouts/column1';
+
+        $school = School::model()->findByPk($school);
+        if ($school === null)
+            throw new CHttpException(404, "Școala nu există în baza noastră de date.");
+
         $class = new Classes;
         if (isset($_POST['Classes'], $_POST['Account'], $_POST['Account']['phone'])) {
             $class->attributes = $_POST['Classes'];
@@ -84,6 +106,7 @@ class ClassesController extends Controller {
                 }
                 if ($error === false) {
                     $class->teacher = $account->id;
+                    $class->school = $school->id;
                     if ($class->save(false)) {
                         $auth = new Authorization;
                         $auth->give($account->id, 'formteacher', $class->id);
@@ -101,6 +124,7 @@ class ClassesController extends Controller {
         $this->render('create', array(
             'class' => $class,
             'account' => $account,
+            'school' => $school,
         ));
     }
 
@@ -213,7 +237,7 @@ class ClassesController extends Controller {
                     $sms->hour1 = $student->rParent->sms_hour1;
                     $sms->hour2 = $student->rParent->sms_hour2;
                     $sms->queue(false);
-                    $sentTo[]=$student->parent;
+                    $sentTo[] = $student->parent;
                 }
             }
             Yii::app()->user->setFlash('class_sms_queued', 'Mesajul SMS va fi trimis tuturor părinților între orele alese de aceștia.');
@@ -237,11 +261,13 @@ class ClassesController extends Controller {
     }
 
     /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
+     * Find the model with findByPk() by the given $id.
+     * Returns FALSE or throws a CHttpException if the model requested does not exist.
+     * @param integer $id The PK of the requested model, usually $_GET['ID']
+     * @param boolean $exception Whether to throw an exception or return false if the model id does not exist. Default is true.
+     * @return Classes The requested model of FALSE if it doesn't exist and redirect is false. 
      */
-    public function loadModel($id, $redirect=true) {
+    public function loadModel($id, $exception=true) {
         if (isset($this->_models[$id]))
             $model = $this->_models[$id];
         else {
@@ -249,7 +275,7 @@ class ClassesController extends Controller {
             $this->_models[$id] = $model;
         }
         if ($model === null) {
-            if ($redirect)
+            if ($exception)
                 throw new CHttpException(404, 'The requested page does not exist.');
             return false;
         }

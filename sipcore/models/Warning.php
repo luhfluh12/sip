@@ -48,7 +48,7 @@ class Warning extends CActiveRecord {
      */
     public static function getWarnings($event) {
         $warnings = array(
-            'addMark' => array('WLowAverage'),
+            'addMark' => array(),
             'addAbsence' => array('WAbsences'),
         );
         return isset($warnings[$event]) ? $warnings[$event] : array();

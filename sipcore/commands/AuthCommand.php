@@ -14,22 +14,32 @@ class AuthCommand extends CConsoleCommand {
         $auth->value, "\n";
     }
 
+    /**
+     * Select the Account by the given phone no or e-mail address (used at login)
+     * Also gets the rAuthorizations relation
+     * @param string $login
+     * @return Account 
+     */
     private function getAccount($login) {
         if (mb_strpos($login, '@'))
             $account = Account::model()->with('rAuthorizations')->find(array(
-                        'condition' => 'email=:email',
-                        'select' => 'id',
-                        'params' => array(':email' => $login),
+                'condition' => 'email=:email',
+                'select' => 'id',
+                'params' => array(':email' => $login),
                     ));
         else
             $account = Account::model()->with('rAuthorizations')->find(array(
-                        'condition' => 'phone=:phone',
-                        'select' => 'id',
-                        'params' => array(':phone' => $login),
+                'condition' => 'phone=:phone',
+                'select' => 'id',
+                'params' => array(':phone' => $login),
                     ));
         return $account;
     }
 
+    /**
+     * Display all the authorizations the selected user has.
+     * @param string $login 
+     */
     public function actionShow($login) {
         $account = $this->getAccount($login);
         if ($account === null) {
@@ -42,6 +52,12 @@ class AuthCommand extends CConsoleCommand {
         echo "Done.\n";
     }
 
+    /**
+     * Add an authorization/permission to the selected user
+     * @param string $login
+     * @param string $action
+     * @param integer $value 
+     */
     public function actionAdd($login, $action, $value) {
         $account = $this->getAccount($login);
         if ($account === null) {
@@ -62,6 +78,10 @@ class AuthCommand extends CConsoleCommand {
         }
     }
 
+    /**
+     * Delete all the permissions/authorizations the selected user has.
+     * @param string $login 
+     */
     public function actionDrop($login) {
         $account = $this->getAccount($login);
         if ($account === null) {
@@ -73,6 +93,14 @@ class AuthCommand extends CConsoleCommand {
         echo "Au fost șterse ", $command->execute(), " permisiuni.\n";
     }
 
+    /**
+     * Delete an authorization or a set of authorizations regarding to $action and $value.
+     * If $all is given, deletes all authorizations for the given $action
+     * @param string $login
+     * @param string $action
+     * @param int $value
+     * @param bool $all 
+     */
     public function actionRemove($login, $action, $value, $all=false) {
         $account = $this->getAccount($login);
         if ($account === null) {
@@ -96,6 +124,10 @@ class AuthCommand extends CConsoleCommand {
         }
     }
 
+    /**
+     * Kills and authorization by ID.
+     * @param int $id Authorization ID.
+     */
     public function actionKill($id) {
         $auth = Authorization::model()->findByPk($id);
         if ($auth === null) {

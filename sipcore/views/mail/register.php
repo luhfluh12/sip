@@ -12,7 +12,7 @@ Cod de activare: <strong><?php echo $activation; ?></strong>
 <br/><br/>
 
 Vă rugăm să vă activați contul urmând legătura:
-<a href="http://sip.web2011.infoeducatie.ro/?r=account/activate&code=<?php echo $activation; ?>" target="_blank">http://sip.web2011.infoeducatie.ro/?r=account/activate&code=<?php echo $activation; ?></a>.
+<a href="http://sip.web2011.infoeducatie.ro/?r=account/activate&amp;code=<?php echo $activation; ?>" target="_blank">http://sip.web2011.infoeducatie.ro/?r=account/activate&amp;code=<?php echo $activation; ?></a>.
 Pentru activare, veți fi rugat să setați o parolă a contului, iar apoi vă veți putea conecta. După ce ați deschis contul dvs., veți putea face modificări suplimentare, de exemplu setarea orelor între care doriți să primiți SMS-uri.
 
 
