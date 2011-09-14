@@ -97,5 +97,16 @@ class Authorization extends CActiveRecord {
             'value' => 'Only at this one',
         );
     }
+    
+    public function getModelByAction() {
+        if ($this->action === 'schoolmanager') {
+            return School::model()->findByPk($this->value);
+        } elseif ($this->action === 'formteacher') {
+            return Classes::model()->findByPk($this->value);
+        } elseif ($this->action === 'parent') {
+            return Student::model()->findByPk($this->value);
+        }
+        return null;
+    }
 
 }

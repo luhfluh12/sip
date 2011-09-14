@@ -10,15 +10,7 @@ $this->menu = array(
     array('label' => 'Schimbă întrebarea de securitate', 'url' => array('account/update', 'p' => 'question')),
     array('label' => 'Schimbă e-mail', 'url' => array('account/update', 'p' => 'email')),
 );
-/*
-  $this->menu=array(
-  array('label'=>'Manage Accounts', 'url'=>array('admin')),
-  array('label'=>'Schoolyears', 'url'=>array('schoolyear/index')),
-  array('label'=>'Breaks (vacantions)', 'url'=>array('breaks/index')),
-  array('label'=>'Schools', 'url'=>array('school/index')),
-  array('label'=>'Classes', 'url'=>array('classes/index')),
-  );
- */
+
 
 $this->pageTitle = 'Contul meu';
 ?>

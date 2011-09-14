@@ -40,8 +40,9 @@ class SiteController extends Controller
 		}
 		// display the login form
 		$this->render('login',array('model'=>$model));
-            } else
-                $this->render('index');
+            } else {
+                $this->render('index', array('authorizations'=>Yii::app()->user->model()->rAuthorizations));
+            }
             
         }
 
