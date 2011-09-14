@@ -192,7 +192,7 @@ div.breadcrumbs span
 div.breadcrumbs a {
     color:#fec68c;
     font-weight: bold;
-    
+
 }
 div.breadcrumbs a:hover {
     color:#fdb468;
@@ -434,7 +434,7 @@ div.search-form
     margin-left:2px;
     font-size:14px;
     display:block;
-    
+
 }
 
 .step-done {
@@ -522,4 +522,35 @@ div.archive div.active {
 }
 div.archive div.inactive {
     background-color:#cfc;
+}
+.button, input[type="submit"] {
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffa200), color-stop(1, #ff6f00) );
+    background:-moz-linear-gradient( center top, #ffa200 5%, #ff6f00 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa200', endColorstr='#ff6f00');
+    background-color:#ffa200;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:1px solid #cc9a58;
+    display:inline-block;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:6px 24px;
+    text-decoration:none;
+    text-shadow:1px 1px 0px #cc6529;
+}
+.button:hover, input[type="submit"]:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ff6f00), color-stop(1, #ffa200) );
+    background:-moz-linear-gradient( center top, #ff6f00 5%, #ffa200 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff6f00', endColorstr='#ffa200');
+    background-color:#ff6f00;
+}
+.button:active, input[type="submit"]:active {
+    position:relative;
+    top:1px;
 }
