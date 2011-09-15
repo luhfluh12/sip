@@ -186,7 +186,7 @@ class ClickatellSms extends CApplicationComponent {
         }
 
         // some errors. log the errors and return false
-        Yii::log('Clickatell SMS Request failed (' . ($https ? 'https' : 'http') . ' - ' . $method . '): ' . $response, 'warning', 'ext.clickatell');
+        Yii::log('Clickatell SMS Request failed (' . ($this->https ? 'https' : 'http') . ' - ' . $method . '): ' . $response, 'warning', 'ext.clickatell');
         $this->_error = explode(', ', $response);
         return false;
     }
