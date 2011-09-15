@@ -131,8 +131,8 @@ class Sms extends CActiveRecord {
         }
 
         //sending
-        $respose = Yii::app()->sms->send(array('to'=>$this->to, 'message'=>$this->message));
-        if ($response !== false)
+        $response = Yii::app()->sms->send(array('to'=>$this->to, 'message'=>$this->message));
+        if (!is_array($response))
             $this->status = self::STATUS_SENDING;
         else
             $this->status = self::STATUS_ERROR;

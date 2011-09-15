@@ -6,8 +6,8 @@ class CronCommand extends CConsoleCommand {
         echo '[', date('j F Y H:i:s'), '] SIP SMS sending CronJob: ', Sms::sendCron(), " sent.\n";
     }
 
-    public function actionWarnings() {
-        echo '[', date('j F Y H:i:s'), '] SIP warning checks: ', Warning::checkDrafts(), "\n";
+    public function actionWarnings($force=false) {
+        echo '[', date('j F Y H:i:s'), '] SIP warning checks: ', Warning::checkDrafts($force), "\n";
     }
 
     public function actionEndSemester() {

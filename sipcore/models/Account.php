@@ -220,8 +220,8 @@ class Account extends CActiveRecord {
             $message = new Sms;
             $message->account = $this->id;
             $message->to = $this->phone;
-            $message->hour1=21;
-            $message->hour2=1;
+            $message->hour1=9;
+            $message->hour2=20;
             $message->message = 'Vizitați http://siponline.ro/ pentru a vă activa contul folosind codul: ' . $this->_activation;
             $message->queue();
         }

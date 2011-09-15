@@ -54,10 +54,14 @@ class Warning extends CActiveRecord {
         return isset($warnings[$event]) ? $warnings[$event] : array();
     }
 
-    public static function checkDrafts() {
+    /**
+     * Checks and renders the drafts into SMSes.
+     * @param bool $force Whether to force the rendering or not.
+     */
+    public static function checkDrafts($force) {
         $time = time();
         $command = Yii::app()->db->createCommand('SELECT sent FROM `warnings` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
-        $drafts = self::model()->findAll('sent=0 AND added<=:a', array(':a' => $time - self::DRAFT_TIME));
+        $drafts = self::model()->findAll('sent=0 AND added<=:a', array(':a' => $time - ($force === true ? 0 : self::DRAFT_TIME)));
         foreach ($drafts as $draft) {
             $lastSent = $command->queryScalar(array(':st' => $draft->student));
             if ($lastSent <= $time - self::QUIET_TIME) {
