@@ -3,7 +3,7 @@ this project needs:
 - mysql database
 - apache2
 - php
-
+- curl
 it was NEVER tested on Windows
 
 ====
