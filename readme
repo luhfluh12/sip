@@ -4,6 +4,8 @@ this project needs:
 - apache2
 - php
 - curl
+- clickatell account
+
 it was NEVER tested on Windows
 
 ====
