@@ -3,6 +3,8 @@ this project needs:
 - mysql database
 - apache2
 - php
+- curl
+- clickatell account
 
 it was NEVER tested on Windows
 
