@@ -7,7 +7,7 @@ class CronCommand extends CConsoleCommand {
     }
 
     public function actionWarnings($force=false) {
-        echo '[', date('j F Y H:i:s'), '] SIP warning checks: ', Warning::checkDrafts($force), "\n";
+        echo '[', date('j F Y H:i:s'), '] SIP warning checks: ', Warning::checkDrafts((bool) $force), "\n";
     }
 
     public function actionEndSemester() {
