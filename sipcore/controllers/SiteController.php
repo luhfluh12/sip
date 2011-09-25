@@ -9,11 +9,6 @@ class SiteController extends Controller
 	public function actions()
 	{
 		return array(
-			// captcha action renders the CAPTCHA image displayed on the contact page
-			'captcha'=>array(
-				'class'=>'CCaptchaAction',
-				'backColor'=>0xFFFFFF,
-			),
 			// page action renders "static" pages stored under 'protected/views/site/pages'
 			// They can be accessed via: index.php?r=site/page&view=FileName
 			'page'=>array(
@@ -74,9 +69,10 @@ class SiteController extends Controller
                             $message = new YiiMailMessage;
                             $message->view='contact';
                             $message->setBody(array('model'=>$model),'text/plain');
-                            $message->addTo('vlad.velici@gmail.com');
+                            $message->addTo(Yii::app()->params['contactEmail']);
+                            $message->setReplyTo(array($model->email => $model->name));
                             $message->subject=$model->subject;
-                            $message->from=Yii::app()->params['contactEmail'];
+                            $message->from=array(Yii::app()->params['noreplyEmail'] => 'No-Reply SIP');
                             Yii::app()->mail->send($message);
 
                             $message = new YiiMailMessage;
@@ -84,7 +80,7 @@ class SiteController extends Controller
                             $message->setBody(array('model'=>$model),'text/plain');
                             $message->subject='Copie a "'.$model->subject.'"';
                             $message->addTo($model->email);
-                            $message->from=Yii::app()->params['contactEmail'];
+                            $message->from=array(Yii::app()->params['noreplyEmail'] => 'No-Reply SIP');
                             Yii::app()->mail->send($message);
 
                             Yii::app()->user->setFlash('contact','Mesajul a fost trimis cu succes. Vă vom contacta în cel mai scurt timp posibil. Vă mulțumim! <br /><br />Veți primi un e-mail conținând mesajul trimis.');
@@ -92,36 +88,6 @@ class SiteController extends Controller
 			}
 		}
 		$this->render('contact',array('model'=>$model));
-	}
-
-	public function actionDev () {
-		$this->render('dev');
-	}
-
-	/**
-	 * Displays the login page
-	 */
-	public function actionLogin()
-	{
-		$model=new LoginForm;
-
-		// if it is ajax validation request
-		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')
-		{
-			echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
-
-		// collect user input data
-		if(isset($_POST['LoginForm']))
-		{
-			$model->attributes=$_POST['LoginForm'];
-			// validate user input and redirect to the previous page if valid
-			if($model->validate() && $model->login())
-				$this->redirect(Yii::app()->user->homepage);
-		}
-		// display the login form
-		$this->render('login',array('model'=>$model));
 	}
 
 	/**

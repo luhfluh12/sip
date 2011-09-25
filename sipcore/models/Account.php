@@ -213,7 +213,7 @@ class Account extends CActiveRecord {
             $message->setBody(array('model' => $this, 'activation' => $this->_activation), 'text/html');
             $message->subject = 'Înregistrare SIP';
             $message->addTo($this->email);
-            $message->from = Yii::app()->params['infoEmail'];
+            $message->from = array(Yii::app()->params['noreplyEmail'] => 'No-Reply SIP');
             Yii::app()->mail->send($message);
         } else {
             // sending activation sms

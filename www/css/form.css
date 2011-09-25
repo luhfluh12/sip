@@ -160,24 +160,63 @@ div.wide.form .buttons, div.wide.form .hint, div.wide.form .errorMessage
 	clear: left;
 	padding-left: 110px;
 }
-.searchTextBox {
-    background-image: url(search.gif);
-    background-repeat:no-repeat;
-    background-position: 1px 50%;
-    padding:5px 5px 5px 26px;
-    font-size:14px;
+.button, input[type="submit"] {
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    box-shadow:inset 0px 1px 0px 0px #ffe5bf;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffa200), color-stop(1, #ff6f00) );
+    background:-moz-linear-gradient( center top, #ffa200 5%, #ff6f00 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa200', endColorstr='#ff6f00');
+    background-color:#ffa200;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:1px solid #cc9a58;
+    display:inline-block;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
     font-weight:bold;
-    border-width: 2px;
-    border-style: solid;
-    border-color:#79B4DC;
-    border-radius:5px;
-    -moz-border-radius:5px;
-    background-color: #fff;
-    width:135px;
-    margin:5px 0;
+    padding:6px 24px;
+    text-decoration:none;
+    text-shadow:1px 1px 0px #cc6529;
 }
-.searchTextBox:hover, .searchTextBox:focus {
-    background-color:#eee;
-    border-color:#9cb4dc;
+.button:hover, input[type="submit"]:hover, .button:focus, input[type="submit"]:focus {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ff6f00), color-stop(1, #ffa200) );
+    background:-moz-linear-gradient( center top, #ff6f00 5%, #ffa200 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff6f00', endColorstr='#ffa200');
+    background-color:#ff6f00;
+    color:#ffffff;
+}
+.button:active, input[type="submit"]:active {
+    position:relative;
+    top:1px;
+}
 
+input[type="text"], input[type="select"], textarea, input[type="password"] {
+    background-color:#fff;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    border-radius:2px;
+    border:1px solid #ccc;
+    display:inline-block;
+    color:#555;
+    font-family:Arial;
+    font-size:13px;
+    padding:4px;
+    text-decoration:none;
+    text-shadow:1px 1px 0px #fff;
+}
+input[type="text"]:hover, input[type="select"]:hover, textarea:hover, input[type="password"]:hover {
+    -moz-box-shadow:inset 0px 2px 0px 0px #ccc;
+    -webkit-box-shadow:inset 0px 2px 0px 0px #ccc;
+    box-shadow:inset 0px 2px 0px 0px #ccc;
+    border:1px solid #888;
+}
+input[type="text"]:focus, input[type="select"]:focus, textarea:focus, input[type="password"]:focus {
+    -moz-box-shadow:inset 0px 3px 0px 0px #ff6f00;
+    -webkit-box-shadow:inset 0px 3px 0px 0px #ff6f00;
+    box-shadow:inset 0px 3px 0px 0px #ff6f00;
+    border:1px solid #888;
+    color:#333;
 }

@@ -7,7 +7,11 @@ $this->sip_title = 'Eroare '.$code;
 ?>
 
 <div>
-    Ne cerem scuze pentru eroare apărută.
+    <?php if (!$message): ?>
+        Ne cerem scuze pentru eroare apărută.
+    <?php else: ?>
+        <?php echo $message; ?>
+    <?php endif; ?>
 </div>
 
 
