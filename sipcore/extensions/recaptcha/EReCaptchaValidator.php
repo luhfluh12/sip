@@ -59,8 +59,13 @@ class EReCaptchaValidator extends CValidator {
      * @param string the attribute being validated
      */
     protected function validateAttribute($object, $attribute) {
-        $resp = recaptcha_check_answer(Yii::app()->params['recaptcha_private'], $_SERVER['REMOTE_ADDR'], $_POST['recaptcha_challenge_field'], $_POST['recaptcha_response_field']);
-        if (!$resp->is_valid) {
+        if (isset($_POST['recaptcha_challenge_field'], $_POST['recaptcha_response_field'])) {
+            $resp = recaptcha_check_answer(Yii::app()->params['recaptcha_private'], $_SERVER['REMOTE_ADDR'], $_POST['recaptcha_challenge_field'], $_POST['recaptcha_response_field']);
+            if (!$resp->is_valid) {
+                $message = $this->message !== null ? $this->message : Yii::t('yii', 'The verification code is incorrect.');
+                $this->addError($object, $attribute, $message);
+            }
+        } else {
             $message = $this->message !== null ? $this->message : Yii::t('yii', 'The verification code is incorrect.');
             $this->addError($object, $attribute, $message);
         }
