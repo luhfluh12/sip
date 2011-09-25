@@ -10,7 +10,7 @@
         <div class="flash-success">Contul dvs. a fost activat cu succes. Acum vă puteți conecta.</div>
     <?php endif; ?>
     
-    <img src="css/whatissip.jpg" alt="ce e sip?"/>
+    <img src="images/whatissip.jpg" alt="ce e sip?"/>
     <div class="clearfix" style="font-size:15px;max-width:550px;">
         
     </div>

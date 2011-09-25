@@ -5,3 +5,5 @@ sipcore/runtime
 www/assets
 .idea/
 sipcore/yiic.php
+index.php
+index-test.php

@@ -26,9 +26,6 @@
                     <?php echo CHtml::link('<img src="images/web.gif" alt="siponline" />', array('site/index')); ?>
                     
                 </div>
-                <div id='l_description'>
-                    Site-ul de dezvoltare a proiectului SIP. <?php echo CHtml::link('Află mai multe &rsaquo;&rsaquo;', array('site/dev')); ?>
-                </div>
                 <?php if (!Yii::app()->user->isGuest): ?>
                     <div id="usermenu">
                         <span><?php echo Yii::app()->user->name; ?></span>

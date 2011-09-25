@@ -150,7 +150,7 @@ EOP;
 
         if ($this->hasModel())
             echo CHtml::activeHiddenField($this->model, $this->attribute), "\n";
-        echo recaptcha_get_html(Yii::app()->params['recaptcha_public'], null, false);
+        echo recaptcha_get_html(Yii::app()->params['recaptcha_public'], null, Yii::app()->params['https']);
     }
 
 }
