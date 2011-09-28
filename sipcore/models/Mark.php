@@ -150,6 +150,8 @@ class Mark extends Schoolitem {
                     $this->addError('date', 'Nu poți adăuga note în ' . $break);
                     return false;
                 }
+                if ($this->isNewRecord)
+                    Warning::verify ('addMark', $this->student, $this->subject);
             }
             return true;
         } else

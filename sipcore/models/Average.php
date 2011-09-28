@@ -99,11 +99,13 @@ class Average extends CActiveRecord {
         }
         if ($sem === 1) {
             if ($purtare->sem1 == $mark)
-                    return true;
+                return true;
             $purtare->sem1 = $mark;
+            // set the default value
+            $purtare->sem2 = 10;
         } else {
             if ($purtare->sem2 == $mark)
-                    return true;
+                return true;
             $purtare->sem2 = $mark;
         }
         return $purtare->save();

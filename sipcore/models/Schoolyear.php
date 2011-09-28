@@ -86,9 +86,9 @@ class Schoolyear extends CActiveRecord {
      * @return string The name of the schoolyear
      */
     public static function thisYearName($time) {
-        return self::thisYear($time).' - '.(self::thisYear($time)+1);
+        return self::thisYear($time) . ' - ' . (self::thisYear($time) + 1);
     }
-    
+
     /**
      * Get the semester that the given timestamp belongs to.
      * The database is queried only if the timestamp is in February
@@ -96,13 +96,13 @@ class Schoolyear extends CActiveRecord {
      * @return integer The semester (1 or 2). FALSE if the function fails
      */
     public static function thisSemester($time) {
-        $month = (int) date('n', $time);
-        if ($month > 2) {
-            return 2;
-        } elseif ($month < 2) {
+        $year = (int) date('Y', $time);
+        $schoolyear = self::thisYear($time);
+        if ($year == $schoolyear)
             return 1;
-        }
-        $model = self::model()->findByPk(self::thisYear($time));
+        if (date('n', $time) > 2)
+            return 2;
+        $model = self::model()->findByPk($schoolyear);
         if ($model === null)
             return false;
         if ($time >= $model->change)

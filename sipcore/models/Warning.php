@@ -48,7 +48,7 @@ class Warning extends CActiveRecord {
      */
     public static function getWarnings($event) {
         $warnings = array(
-            'addMark' => array(),
+            'addMark' => array('WAverages'),
             'addAbsence' => array('WAbsences'),
         );
         return isset($warnings[$event]) ? $warnings[$event] : array();
@@ -60,61 +60,62 @@ class Warning extends CActiveRecord {
      */
     public static function checkDrafts($force) {
         $time = time();
-        $command = Yii::app()->db->createCommand('SELECT sent FROM `warnings` WHERE student=:st AND sent!=0 ORDER BY sent DESC LIMIT 1');
+        $command = Yii::app()->db->createCommand('SELECT MAX(sent) FROM `warnings` WHERE student=:st');
         $drafts = self::model()->findAll('sent=0 AND added<=:a', array(':a' => $time - ($force === true ? 0 : self::DRAFT_TIME)));
         foreach ($drafts as $draft) {
             $lastSent = $command->queryScalar(array(':st' => $draft->student));
-            if ($lastSent <= $time - self::QUIET_TIME) {
+            if ($lastSent <= $time - self::QUIET_TIME || $force === true) {
                 // recheck all the stored problems
-                $newproblems = array();
+                $newProblems = array();
+                $message = '';
                 foreach ($draft->json as $w => $values) {
                     if (class_exists($w)) {
-                        $new = $w::check($draft->student, $lastSent);
-                        if ($new) {
-                            $newproblems[$w] = $new;
+                        $new = $w::validate($draft->student, $lastSent, $values);
+                        if ($new !== false) {
+                            $newProblems[$w] = $new;
+                            $message .= $w::render($new);
                         }
                     }
                 }
                 // if there are still problems, render and send
-                if (!empty($newproblems)) {
+                if (!empty($newProblems)) {
                     $draft->sent = $time;
                     $sms = new Sms;
                     $sms->account = $draft->rStudent->parent;
-                    $sms->message = '';
-                    foreach ($newproblems as $w => $stored) {
-                        if (class_exists($w))
-                            $sms->message .= $w::render($stored);
-                    }
+                    $sms->message = $message;
                     $sms->hour1 = $draft->rStudent->rParent->sms_hour1;
                     $sms->hour2 = $draft->rStudent->rParent->sms_hour2;
                     $sms->queue(false);
                 }
                 // save the changes
-                $draft->json = $newproblems;
+                $draft->json = $newProblems;
                 $draft->save();
             }
         }
     }
 
-    public static function verify($event, $student) {
+    public static function verify($event, $student, $subject=false) {
         $warnings = self::getWarnings($event);
         if (empty($warnings))
             return false;
         $command = Yii::app()->db->createCommand("SELECT sent FROM warnings WHERE sent!=0 AND student=:st ORDER BY sent DESC LIMIT 1");
         $timelimit = (int) $command->queryScalar(array(':st' => $student));
         $draft = self::model()->find(array(
-                    'condition' => 'sent=0 AND student=:student',
-                    'params' => array(':student' => $student),
+            'condition' => 'sent=0 AND student=:student',
+            'params' => array(':student' => $student),
                 ));
         if ($draft !== null) {
             $save = false;
             if (!is_array($draft->json))
                 $draft->json = array();
             foreach ($warnings as $warning) {
-                if (!isset($draft->json[$warning]) && class_exists($warning)) {
-                    $new = $warning::check($student, $timelimit);
+                if (class_exists($warning)) {
+                    $new = $warning::check($student, $subject, $timelimit, isset($draft->json[$warning]) ? $draft->json[$warning] : false);
                     if ($new !== false) {
-                        $draft->json += array($warning => $new);
+                        if (isset($draft->json[$warning]))
+                            $draft->json[$warning] = $new;
+                        else
+                            $draft->json += array($warning => $new);
                         if ($save === false)
                             $save = true;
                     }
@@ -126,7 +127,7 @@ class Warning extends CActiveRecord {
             $problems = array();
             foreach ($warnings as $warning) {
                 if (class_exists($warning)) {
-                    $new = $warning::check($student, $timelimit);
+                    $new = $warning::check($student, $subject, $timelimit, false);
                     if ($new !== false)
                         $problems[$warning] = $new;
                 }
